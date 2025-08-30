@@ -9,15 +9,19 @@ class Usuario:
 
     @staticmethod
     def buscar_por_login(nome_usuario, senha):
-        if not db.open():
+        try:
+            if not db.open():
+                return None
+            query = "SELECT id, nome_usuario, senha FROM usuarios WHERE nome_usuario = %s AND senha = %s"
+            db.cursor.execute(query, (nome_usuario, senha))
+            row = db.cursor.fetchone()
+            db.close()
+            if row:
+                return Usuario(**row)
             return None
-        query = "SELECT id, nome_usuario, senha FROM usuarios WHERE nome_usuario = %s AND senha = %s"
-        db.cursor.execute(query, (nome_usuario, senha))
-        row = db.cursor.fetchone()
-        db.close()
-        if row:
-            return Usuario(**row)
-        return None
+        except Exception as e:
+            print(e)
+            return None
 
     @staticmethod
     def criar(login, senha):

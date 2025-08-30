@@ -13,10 +13,9 @@ def open():
             database="mundo_interativo"
         )
         cursor = db.cursor(dictionary=True)
-        print("✅ Database connection established")
+
         return True
     except mysql.connector.Error as e:
-        print(f"❌ Error connecting to database: {e}")
         return False
 
 def close():
@@ -24,4 +23,3 @@ def close():
     if db and db.is_connected():
         cursor.close()
         db.close()
-        print("🔒 Database connection closed")
