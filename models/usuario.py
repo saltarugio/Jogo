@@ -12,7 +12,7 @@ class Usuario:
         try:
             if not db.open():
                 return None
-            query = "SELECT id, nome_usuario, senha FROM usuarios WHERE nome_usuario = %s AND senha = %s"
+            query = "SELECT id, nome_usuario, senha FROM usuario WHERE nome_usuario = %s AND senha = %s"
             db.cursor.execute(query, (nome_usuario, senha))
             row = db.cursor.fetchone()
             db.close()
@@ -27,7 +27,16 @@ class Usuario:
     def criar(login, senha):
         if not db.open():
             return None
-        query = "INSERT INTO usuarios (nome_usuario, senha) VALUES (%s, %s)"
+        try:
+            existing_user = Usuario.buscar_por_login(login, senha)
+            if existing_user:
+                db.close()
+                return None  # Usuário já existe
+        except Exception as e:
+            print(e)
+            db.close()
+            return None
+        query = "INSERT INTO usuario (nome_usuario, senha) VALUES (%s, %s)"
         db.cursor.execute(query, (login, senha))
         db.db.commit()
         usuario_id = db.cursor.lastrowid

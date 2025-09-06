@@ -92,21 +92,21 @@ while not npc_escolhido:
 console.print(f"\n💬 Conversando com [bold yellow]{npc_escolhido.nome}[/]...\n")
 
 while True:
-        prompt = input("Você: ")
-        if prompt.lower() in ["sair", "exit", "quit"]:
-            console.print("🚪 Encerrando conversa.")
-            break
+    prompt = input("Você: ")
+    if prompt.lower() in ["sair", "exit", "quit"]:
+        console.print("🚪 Encerrando conversa.")
+        break
 
-        # Aqui futuramente entra a IA
-        resposta = f"{npc_escolhido.nome} diz: 'Ainda não tenho respostas dinâmicas.'"
+    # Aqui futuramente entra a IA
+    resposta = f"{npc_escolhido.nome} diz: 'Ainda não tenho respostas dinâmicas.'"
 
-        print(resposta)
+    print(resposta)
 
-        # Registrar no histórico
-        Historico.registrar_interacao(
-            fk_avatar_id=avatar.id,
-            fk_npc_id=npc_escolhido.id,
-            prompt_usuario=prompt,
-            resposta_ia=f'{{"resposta":"{resposta}"}}',
-            fk_mapa_id=npc_escolhido.fk_mapa_id
-        )
+    # Registrar no histórico
+    Historico.registrar_interacao(
+        fk_avatar_id=avatar.id,
+        fk_npc_id=npc_escolhido.id,
+        prompt_usuario=prompt,
+        resposta_ia=f'{{"resposta":"{resposta}"}}',
+        fk_mapa_id=npc_escolhido.fk_mapa_id
+    )

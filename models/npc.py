@@ -14,6 +14,7 @@ class NPC:
     def listar():
         if not db.open():
             return []
+            
         query = "SELECT id, nome, raca, personalidade, profissao, historia_pessoal, fk_mapa_id FROM npcs"
         db.cursor.execute(query)
         results = db.cursor.fetchall()
