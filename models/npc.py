@@ -1,5 +1,5 @@
 import banco.conection as db
-from IA.ia import gerar_resposta
+from  IA.ia import DeepSeekIA
 
 class NPC:
     def __init__(self, id=None, nome=None, raca=None, personalidade=None, profissao=None, historia_pessoal=None, fk_mapa_id=None):
@@ -32,9 +32,9 @@ class NPC:
             return []     
 
     @staticmethod
-    def responder(npc, prompt, avatar_id, mapa_id):
+    def responder(npc, prompt, avatar_id, historico, mapa):
         try:
-            resposta = gerar_resposta(npc, avatar_id, mapa_id, prompt)
+            resposta = DeepSeekIA.gerar_resposta(npc, avatar_id, historico, prompt, mapa)
             return resposta
         except Exception as e:
             print(f"[NPC] Erro ao responder: {e}")

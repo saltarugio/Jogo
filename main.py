@@ -109,9 +109,11 @@ while True:
                     Avatar.atualiza_posicao_avatar(avatar.id, mapa_atual.id)
                     break
 
-                # resposta mockada
-                # resposta = f"{npc_escolhido.nome} diz: 'Ainda não tenho respostas dinâmicas.'"
-                resposta = NPC.responder(npc_escolhido, prompt, avatar.id, mapa_atual.id)
+                
+                # busca histórico
+                historico = Historico.buscar_por_avatar_e_npc(avatar.id, npc_escolhido.id, limite=10)
+                # obtém resposta do NPC via IA
+                resposta = NPC.responder(npc_escolhido, prompt, avatar.id, historico, mapa_atual)
                 print(resposta)
 
                 # registra no histórico
