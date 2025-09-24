@@ -43,12 +43,9 @@ class Historico:
             return []
         try:
             query = """
-                SELECT hc.mensagem_usuario, hc.resposta_ai
-                FROM historico_chats as hc
-                INNER JOIN interage_avatar_npc_historico as ianh
-                WHERE ianh.fk_avatar_id = %s AND ianh.fk_npc_id = %s
-                ORDER BY id DESC
-                LIMIT %s;
+                SELECT hc.mensagem_usuario, hc.resposta_ai FROM historico_chats as hc 
+                INNER JOIN interage_avatar_npc_historico as ianh ON hc.id = ianh.fk_historico_id 
+                WHERE ianh.fk_avatar_id = %s AND ianh.fk_npc_id = %s ORDER BY id DESC LIMIT %s;
             """
             db.cursor.execute(query, (fk_avatar_id, fk_npc_id, limite))
             results = db.cursor.fetchall()

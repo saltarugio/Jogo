@@ -1,11 +1,57 @@
 """
 Este módulo contém a configuração que vai para IA.
 """
-OLLAMA_URL = "http://localhost:11434/v1/chat/completions"  # URL do servidor Ollama
-OLLAMA_HEADERS = {"Content-Type": "application/json"}
-AI_CONFIG = { 
-    "max_historico": 10, #Numero de mensagens anterioes a se considerar 
-    "temperatura": 0.7, #criatividade da IA (se usar modelo real depois) 
-    "max_tokens": 512 #maximo de tokens a serem retornados (se usar modelo real depois)
+# config.py
+
+OLLAMA_API_DEEPSEEK_R1 = {
+    "OLLAMA_URL": "http://localhost:11434/v1/chat/completions",
+    "OLLAMA_HEADERS": {"Content-Type": "application/json"},
+    "OLLAMA_MODEL": "deepseek-r1:8b",
+     # Parâmetros que serão enviados diretamente no payload
+    "MAX_HISTORICO": 10,
+    "TEMPERATURE": 0.7,
+    "MAX_TOKENS": 512,
+    "MIRASAT": False,
+    "REPEAT_PENALTY": 1.1
+    
 }
-OLLAMA_MODEL = "deepseek-r1"  # Nome do modelo Ollama a ser usado
+
+# OLLAMA_API_GEMMA3 = {
+#     "OLLAMA_URL": "http://localhost:11434/v1/chat/completions",
+#     "OLLAMA_HEADERS": {"Content-Type": "application/json"},
+#     "AI_CONFIG": {
+#         "max_historico": 10,
+#         "temperatura": 0.7,
+#         "max_tokens": 512,
+#         "mirastat": False,
+#         "mirastat_mode": 0,
+#         "repeat_penalty": 1.1
+#     },
+#     "OLLAMA_MODEL": "gemma3:27b"
+# }
+
+# IA/config.py
+
+OLLAMA_API_DEEPSEEK_V3 = {
+    "OLLAMA_URL": "http://localhost:11434/v1/chat/completions",
+    "OLLAMA_HEADERS": {"Content-Type": "application/json"},
+    "MODEL_NAME": "deepseek-v3.1:671b-cloud",
+    # Parâmetros que serão enviados diretamente no payload
+    "MAX_HISTORICO": 10,
+    "TEMPERATURE": 0.7,
+    "MAX_TOKENS": 512,
+    "MIRASAT": False,
+    "REPEAT_PENALTY": 1.1
+}
+
+OLLAMA_API_QWEN3_CODER = {
+    "OLLAMA_URL": "http://localhost:11434/v1/chat/completions",
+    "OLLAMA_HEADERS": {"Content-Type": "application/json"},
+    "MODEL_NAME": "qwen3-coder:480b-cloud",
+    # Parâmetros que serão enviados diretamente no payload
+    "MAX_HISTORICO": 10,
+    "TEMPERATURE": 0.7,
+    "MAX_TOKENS": 512,
+    "MIRASAT": False,
+    "REPEAT_PENALTY": 1.1
+}

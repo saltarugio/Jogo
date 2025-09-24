@@ -1,3 +1,6 @@
+import subprocess
+import time
+import requests
 from rich.console import Console
 from models.usuario import Usuario
 from models.avatar import Avatar
@@ -9,11 +12,44 @@ console = Console()
 
 console.print("🎮 Bem-vindo ao [bold green]Mundo Interativo[/]!")
 
+def ensure_ollama_is_running():
+    ollama_url = "http://localhost:11434"
+    
+    # Tentar verificar se o serviço já está rodando
+    try:
+        requests.get(ollama_url, timeout=5)
+        print("Ollama já está rodando.")
+        return True
+    except requests.exceptions.RequestException:
+        print("Ollama não encontrado. Tentando iniciar o servidor...")
+        
+    # Se não estiver rodando, tentar iniciá-lo
+    try:
+        # O comando 'ollama serve' inicia o servidor.
+        # Usa-se 'subprocess.Popen' para que o comando rode em segundo plano
+        # e não bloqueie a execução do seu jogo.
+        subprocess.Popen(['ollama', 'serve'])
+        
+        # Dar um tempo para o servidor iniciar
+        print("Aguardando o Ollama iniciar...")
+        time.sleep(10)
+        
+        # Verificar novamente se o serviço está disponível
+        requests.get(ollama_url, timeout=5)
+        print("Ollama iniciado com sucesso!")
+        return True
+    except Exception as e:
+        print(f"Erro ao iniciar o Ollama: {e}")
+        return False
 # ----------------- LOGIN LOOP -----------------
 usuario = None
 while not usuario:
-    login = input("Digite seu login: ")
-    senha = input("Digite sua senha: ")
+    if ensure_ollama_is_running():
+        login = input("Digite seu login: ")
+        senha = input("Digite sua senha: ")
+    else:
+        console.print("❌ Não foi possível conectar ao Ollama. Verifique se o Ollama está instalado e configurado corretamente.")
+        exit()
 
     usuario = Usuario.buscar_por_login(login, senha)
 
@@ -113,16 +149,19 @@ while True:
                 # busca histórico
                 historico = Historico.buscar_por_avatar_e_npc(avatar.id, npc_escolhido.id, limite=10)
                 # obtém resposta do NPC via IA
-                resposta = NPC.responder(npc_escolhido, prompt, avatar.id, historico, mapa_atual)
+                resposta = NPC.responder(npc_escolhido, prompt, avatar.nome, historico, mapa_atual)
                 print(resposta)
-
-                # registra no histórico
-                Historico.registrar_interacao(
-                    fk_avatar_id=avatar.id,
-                    fk_npc_id=npc_escolhido.id,
-                    prompt_usuario=prompt,
-                    resposta_ia=f'{{"resposta":"{resposta}"}}',
-                )
+                if resposta:
+                    console.print(f"[bold yellow]{npc_escolhido.nome}[/]: {resposta}")
+                    # registra no histórico
+                    Historico.registrar_interacao(
+                        fk_avatar_id = avatar.id,
+                        fk_npc_id = npc_escolhido.id,
+                        prompt_usuario = prompt,
+                        resposta_ia = f'{{"resposta":"{resposta}"}}',
+                    )
+                else:
+                    console.print("⚠️ O NPC não respondeu. Tente novamente.")
         else:
             console.print("⚠️ NPC inválido.")
 

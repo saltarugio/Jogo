@@ -1,2 +1,2 @@
 from IA.ia import DeepSeekIA
-from IA.config import AI_CONFIG
+from IA.config import OLLAMA_API_DEEPSEEK_R1, OLLAMA_API_QWEN3_CODER
