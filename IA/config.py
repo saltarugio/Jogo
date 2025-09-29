@@ -6,7 +6,7 @@ Este módulo contém a configuração que vai para IA.
 OLLAMA_API_DEEPSEEK_R1 = {
     "OLLAMA_URL": "http://localhost:11434/v1/chat/completions",
     "OLLAMA_HEADERS": {"Content-Type": "application/json"},
-    "OLLAMA_MODEL": "deepseek-r1:8b",
+    "MODEL_NAME": "deepseek-r1:8b",
      # Parâmetros que serão enviados diretamente no payload
     "MAX_HISTORICO": 10,
     "TEMPERATURE": 0.7,
@@ -15,22 +15,6 @@ OLLAMA_API_DEEPSEEK_R1 = {
     "REPEAT_PENALTY": 1.1
     
 }
-
-# OLLAMA_API_GEMMA3 = {
-#     "OLLAMA_URL": "http://localhost:11434/v1/chat/completions",
-#     "OLLAMA_HEADERS": {"Content-Type": "application/json"},
-#     "AI_CONFIG": {
-#         "max_historico": 10,
-#         "temperatura": 0.7,
-#         "max_tokens": 512,
-#         "mirastat": False,
-#         "mirastat_mode": 0,
-#         "repeat_penalty": 1.1
-#     },
-#     "OLLAMA_MODEL": "gemma3:27b"
-# }
-
-# IA/config.py
 
 OLLAMA_API_DEEPSEEK_V3 = {
     "OLLAMA_URL": "http://localhost:11434/v1/chat/completions",

@@ -18,10 +18,10 @@ def ensure_ollama_is_running():
     # Tentar verificar se o serviço já está rodando
     try:
         requests.get(ollama_url, timeout=5)
-        print("Ollama já está rodando.")
+        console.print("Ollama já está rodando.")
         return True
     except requests.exceptions.RequestException:
-        print("Ollama não encontrado. Tentando iniciar o servidor...")
+        console.print("Ollama não encontrado. Tentando iniciar o servidor...")
         
     # Se não estiver rodando, tentar iniciá-lo
     try:
@@ -31,15 +31,15 @@ def ensure_ollama_is_running():
         subprocess.Popen(['ollama', 'serve'])
         
         # Dar um tempo para o servidor iniciar
-        print("Aguardando o Ollama iniciar...")
+        console.print("Aguardando o Ollama iniciar...")
         time.sleep(10)
         
         # Verificar novamente se o serviço está disponível
         requests.get(ollama_url, timeout=5)
-        print("Ollama iniciado com sucesso!")
+        console.print("Ollama iniciado com sucesso!")
         return True
     except Exception as e:
-        print(f"Erro ao iniciar o Ollama: {e}")
+        console.print(f"Erro ao iniciar o Ollama: {e}")
         return False
 # ----------------- LOGIN LOOP -----------------
 usuario = None
@@ -81,7 +81,7 @@ else:
     while not avatar:
         console.print("\nEscolha um avatar para jogar:")
         for i, avatar_item in enumerate(avatares, start=1):
-            print(f"{i}. {avatar_item.nome}")
+            console.print(f"{i}. {avatar_item.nome}")
 
         try:
             console.print("Escolha um avatar da lista, ou digite 0 para criar um novo:")
@@ -120,16 +120,17 @@ while True:
     else:
         console.print("⚠️ Não há NPCs neste mapa.")
         console.print("Você só pode [m]udar de mapa")
-    if(len(mapas) < 1):
+    if not mapas:
         console.print("⚠️ Nenhum mapa cadastrado!")
+        exit()
 
     escolha = input("Digite sua escolha: ").lower()
 
     if escolha == "c" and npcs:
         console.print("\nEscolha um NPC para conversar:")
         for i, npc in enumerate(npcs, start=1):
-            print(f"{i}. {npc.nome} ({npc.raca})")
-
+            console.print(f"{i}. {npc.nome} ({npc.raca})")
+        
         try:
             escolha_npc = int(input("Digite o número do NPC: ")) - 1
             npc_escolhido = npcs[escolha_npc] if 0 <= escolha_npc < len(npcs) else None
@@ -150,9 +151,13 @@ while True:
                 historico = Historico.buscar_por_avatar_e_npc(avatar.id, npc_escolhido.id, limite=10)
                 # obtém resposta do NPC via IA
                 resposta = NPC.responder(npc_escolhido, prompt, avatar.nome, historico, mapa_atual)
-                print(resposta)
+                console.print(f"[bold yellow]{npc_escolhido.nome}[/]: ", end='')
                 if resposta:
-                    console.print(f"[bold yellow]{npc_escolhido.nome}[/]: {resposta}")
+                    for letra in resposta:
+                        console.print(letra, end='', style="white")
+                        time.sleep(0.02)  # Ajuste o tempo para controlar a velocidade da "digitação"
+
+                        
                     # registra no histórico
                     Historico.registrar_interacao(
                         fk_avatar_id = avatar.id,
@@ -161,7 +166,7 @@ while True:
                         resposta_ia = f'{{"resposta":"{resposta}"}}',
                     )
                 else:
-                    console.print("⚠️ O NPC não respondeu. Tente novamente.")
+                    console.print("⚠️ O NPC está ocupado e não pode responder no momento. Tente novamente.")
         else:
             console.print("⚠️ NPC inválido.")
 

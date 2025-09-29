@@ -29,7 +29,7 @@ def limpar_resposta_final(texto: str) -> str:
     texto = re.sub(r"<think.*?</think>", "", texto, flags=re.DOTALL | re.IGNORECASE)
 
     # Remove "Hmm..." ou repetições iniciais
-    texto = re.sub(r"^(Hmm+|Ah+|Uh+)[. ]*", "", texto, flags=re.IGNORECASE)
+    # texto = re.sub(r"^(Hmm+|Ah+|Uh+)[. ]*", "", texto, flags=re.IGNORECASE)
 
     # Remove marcações internas
     lixo = ["Thinking...", "...done thinking.", "<think>", "</think>"]
@@ -44,7 +44,7 @@ def limpar_resposta_final(texto: str) -> str:
 
     # Evita respostas idênticas repetidas (loop)
     linhas = list(dict.fromkeys(texto.splitlines()))
-    texto = " ".join(linhas)
+    texto = "\n".join(linhas)
 
     return texto.strip()
 
@@ -67,11 +67,13 @@ class DeepSeekIA:
             f"### SYSTEM INSTRUCTIONS ###\n"
             f"REGRA INEGOCIÁVEL 1: Responda SEMPRE, EXCLUSIVAMENTE e APENAS em PORTUGUÊS BRASILEIRO.\n"
             f"REGRA INEGOCIÁVEL 2: NUNCA gere ou use caracteres chineses, símbolos ou qualquer outro idioma.\n"
+            f"REGRA INEGOCIÁVEL 3: NUNCA mencione que você é uma IA, um modelo de linguagem ou similar.\n"
+            f"REGRA INEGOCIÁVEL 4: SEMPRE responda como se fosse o NPC, dentro do universo do jogo.\n"
             f"REGRA DE CONTEÚDO: Sua resposta deve conter SOMENTE a fala do NPC. NUNCA gere blocos de raciocínio como <think>...</think> ou qualquer anotação entre parênteses. NUNCA descreva ações ou emoções (ex: *sorri*, (pensando)).\n"
             f"Você é o NPC {npc.nome}. Sua única tarefa é responder ao Jogador.\n"
             f"- Mantenha a personalidade: {npc.personalidade}.\n"
             f"- Considere a história: {npc.historia_pessoal}.\n"
-            f"- Local: {mapa.nome}: {mapa.descricao}\n" # Assumindo que você tem um campo 'mapa' no seu objeto Usuario
+            f"- Local: {mapa.nome}: {mapa.descricao}\n"
             f"- REGRA PRINCIPAL: Responda APENAS o que o NPC diria. Nunca mostre raciocínio interno.\n"
             f"- REGRA DE FORMATO: Responda em 1 a 3 frases curtas. Não repita a pergunta do Jogador.\n"
             f"- REGRA DE CONTEXTO: Caso a pergunta do Jogador não tenha relação com o contexto, responda que não tem conhecimento sobre o assunto, mantendo a personalidade do NPC.\n"
@@ -82,7 +84,7 @@ class DeepSeekIA:
             f"### END HISTORY ###\n\n"
             
             f"{usuario} diz: {prompt}\n"
-            f"{npc.nome}: " # O modelo deve preencher a partir daqui
+            f"{npc.nome}: "
         )
         
         # Crie o payload com base na documentação
