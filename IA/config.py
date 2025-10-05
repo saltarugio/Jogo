@@ -13,7 +13,6 @@ OLLAMA_API_DEEPSEEK_R1 = {
     "MAX_TOKENS": 512,
     "MIRASAT": False,
     "REPEAT_PENALTY": 1.1
-    
 }
 
 OLLAMA_API_DEEPSEEK_V3 = {

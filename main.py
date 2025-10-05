@@ -140,7 +140,7 @@ while True:
         if npc_escolhido:
             console.print(f"\n💬 Conversando com [bold yellow]{npc_escolhido.nome}[/]...\n")
             while True:
-                prompt = input("Você: ")
+                prompt = input("Você: ").strip()[:200]  # Limita a 200 caracteres
                 if prompt.lower() in ["sair", "exit", "quit"]:
                     console.print("🚪 Encerrando conversa.")
                     Avatar.atualiza_posicao_avatar(avatar.id, mapa_atual.id)
