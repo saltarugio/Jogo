@@ -55,3 +55,22 @@ class Historico:
             db.close()
             print(f"[Historico] Erro ao buscar histórico: {e}")
             return []
+        
+    @staticmethod    
+    def buscar_parametros_ia(fk_avatar_id, fk_npc_id):
+        if not db.open():
+            return None
+        try:
+            query = """
+                SELECT proximidade, reputacao, lealdade, hostilidade, observacao 
+                FROM parametros_ia 
+                WHERE fk_avatar_id = %s AND fk_npc_id = %s;
+            """
+            db.cursor.execute(query, (fk_avatar_id, fk_npc_id))
+            result = db.cursor.fetchone()
+            db.close()
+            return result
+        except Exception as e:
+            db.close()
+            print(f"[Historico] Erro ao buscar parâmetros IA: {e}")
+            return None

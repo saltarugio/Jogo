@@ -4,6 +4,7 @@ import re
 from IA.config import OLLAMA_API_DEEPSEEK_V3, OLLAMA_API_QWEN3_CODER, OLLAMA_API_DEEPSEEK_R1
 import unicodedata
 
+
 MODELO_ESCOLHIDO = "deepseekv3" # Opções: "deepseekv3", "qwen3", "deepseekr1"
 if MODELO_ESCOLHIDO == "deepseekv3":
     OLLAMA_URL = OLLAMA_API_DEEPSEEK_V3["OLLAMA_URL"]
@@ -51,7 +52,7 @@ def limpar_resposta_final(texto: str) -> str:
 
 class DeepSeekIA:
     @staticmethod
-    def gerar_resposta(npc, usuario, historico, prompt, mapa):
+    def gerar_resposta(npc, usuario, historico, prompt, mapa, contexto_parametros):
         # Limitar histórico
         if len(historico) > OLLAMA_CONFIG["MAX_HISTORICO"]:
             historico = historico[-OLLAMA_CONFIG["MAX_HISTORICO"]:]
@@ -77,6 +78,7 @@ class DeepSeekIA:
             f"- REGRA PRINCIPAL: Responda APENAS o que o NPC diria. Nunca mostre raciocínio interno.\n"
             f"- REGRA DE FORMATO: Responda em 1 a 3 frases curtas. Não repita a pergunta do Jogador.\n"
             f"- REGRA DE CONTEXTO: Caso a pergunta do Jogador não tenha relação com o contexto, responda que não tem conhecimento sobre o assunto, mantendo a personalidade do NPC.\n"
+            f"- Contexto adicional (parâmetros IA): {contexto_parametros}\n"
             f"### END INSTRUCTIONS ###\n\n"
             
             f"### DIALOG HISTORY ###\n"
@@ -121,5 +123,48 @@ class DeepSeekIA:
         except requests.exceptions.HTTPError as e:
             return None
         
+        except Exception as e:
+            return None
+    
+    @staticmethod
+    def avaliacao_emocional(npc, usuario, prompt, mapa):
+        entrada = (
+            f"### SYSTEM INSTRUCTIONS ###\n"
+            f"Você é um sistema de avaliação emocional para NPCs em um jogo. Sua tarefa é analisar a interação entre o Jogador e o NPC e fornecer uma avaliação emocional quantitativa.\n"
+            f"- Considere os seguintes parâmetros: proximidade, reputação, lealdade, hostilidade.\n"
+            f"- Cada parâmetro deve ser avaliado em uma escala de -2 a +2, onde:\n"
+            f"  - -2 indica uma mudança muito negativa,\n"
+            f"  - -1 indica uma mudança negativa,\n"
+            f"  - 0 indica nenhuma mudança,\n"
+            f"  - +1 indica uma mudança positiva,\n"
+            f"  - +2 indica uma mudança muito positiva.\n"
+            f"- Forneça uma justificativa breve para cada avaliação.\n"
+            f"- Responda no seguinte formato JSON:\n"
+            f'{{"proximidade": int, "reputacao": int, "lealdade": int, "hostilidade": int, "justificativa": "string"}}\n'
+            f"- REGRA INEGOCIÁVEL: NUNCA use caracteres chineses, símbolos ou qualquer outro idioma. Responda EXCLUSIVAMENTE em PORTUGUÊS BRASILEIRO.\n"
+            f"- REGRA INEGOCIÁVEL: NUNCA mencione que você é uma IA ou modelo de linguagem.\n"
+            f"### END INSTRUCTIONS ###\n\n"
+            
+            f"O Jogador {usuario} disse ao NPC {npc.nome}: {prompt}\n"
+            f"Contexto do NPC: {npc.personalidade}. História: {npc.historia_pessoal}. Local: {mapa.nome}: {mapa.descricao}\n\n"
+            f"Forneça sua avaliação emocional agora."
+        )
+        
+        payload = {
+            "model": OLLAMA_CONFIG["MODEL_NAME"],
+            "messages": [{"role": "user", "content": entrada}],
+            "stream": False,
+            "options": {
+                "temperature": 0.7,
+                "num_ctx": 512,
+                "repeat_penalty": 1.1,
+            }
+        }
+        
+        try:
+            response = requests.post(OLLAMA_URL, headers=OLLAMA_HEADERS, data=json.dumps(payload))
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            return None
         except Exception as e:
             return None

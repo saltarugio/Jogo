@@ -1,12 +1,15 @@
+import json
 import subprocess
 import time
 import requests
 from rich.console import Console
+from IA.ia import DeepSeekIA
 from models.usuario import Usuario
 from models.avatar import Avatar
 from models.npc import NPC
 from models.historico import Historico
 from models.mapa import Mapa  # precisa existir
+
 
 console = Console()
 
@@ -140,33 +143,7 @@ while True:
         if npc_escolhido:
             console.print(f"\n💬 Conversando com [bold yellow]{npc_escolhido.nome}[/]...\n")
             while True:
-                prompt = input("Você: ").strip()[:200]  # Limita a 200 caracteres
-                if prompt.lower() in ["sair", "exit", "quit"]:
-                    console.print("🚪 Encerrando conversa.")
-                    Avatar.atualiza_posicao_avatar(avatar.id, mapa_atual.id)
-                    break
-
-                
-                # busca histórico
-                historico = Historico.buscar_por_avatar_e_npc(avatar.id, npc_escolhido.id, limite=10)
-                # obtém resposta do NPC via IA
-                resposta = NPC.responder(npc_escolhido, prompt, avatar.nome, historico, mapa_atual)
-                console.print(f"[bold yellow]{npc_escolhido.nome}[/]: ", end='')
-                if resposta:
-                    for letra in resposta:
-                        console.print(letra, end='', style="white")
-                        time.sleep(0.02)  # Ajuste o tempo para controlar a velocidade da "digitação"
-
-                        
-                    # registra no histórico
-                    Historico.registrar_interacao(
-                        fk_avatar_id = avatar.id,
-                        fk_npc_id = npc_escolhido.id,
-                        prompt_usuario = prompt,
-                        resposta_ia = f'{{"resposta":"{resposta}"}}',
-                    )
-                else:
-                    console.print("⚠️ O NPC está ocupado e não pode responder no momento. Tente novamente.")
+                NPC.executa_interacao(avatar, npc_escolhido, mapa_atual)
         else:
             console.print("⚠️ NPC inválido.")
 

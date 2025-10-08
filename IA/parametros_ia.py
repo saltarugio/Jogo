@@ -1,36 +1,29 @@
 import banco.conection as db
+import json
 from datetime import datetime
 
 class ParametrosIA:
     @staticmethod
-    def atualizar(fk_avatar_id, fk_npc_id, evento, observacao=""):
-        impactos = {
-            "elogio": {"aproximidade": +5, "reputacao": +2, "lealdade": +3, "hostilidade": -2},
-            "ajuda": {"aproximidade": +10, "reputacao": +5, "lealdade": +7, "hostilidade": -5},
-            "mentira": {"aproximidade": -10, "reputacao": -5, "lealdade": -7, "hostilidade": +5},
-            "ameaca": {"aproximidade": -15, "reputacao": -10, "lealdade": -12, "hostilidade": +10},
-            "presente": {"aproximidade": +8, "reputacao": +4, "lealdade": +6, "hostilidade": -3},
-            "ingnorar": {"aproximidade": -5, "reputacao": -2, "lealdade": -3, "hostilidade": +2},
-        }
-        impacto = impactos.get(evento, {})
-        if not impacto:
-            console.print(f"Evento desconhecido: {evento}")
-            return False
-        
-        if not db.open_connection():
-            return False
-        
+    def atualizar(fk_avatar_id, fk_npc_id, resposta_ia_json):
         try:
+            data = json.loads(resposta_ia_json)
+
+            if not db.open():
+                return False
+
             query = f"""
-                INSERT INTO parametros_ia (fk_avatar_id, fk_npc_id, proximidade, reputacao, lealdade, hostilidade, ultimo_evento, observacao)
-                VALUES ({fk_avatar_id}, {fk_npc_id}, {impacto['proximidade']}, {impacto['reputacao']}, {impacto['lealdade']}, {impacto['hostilidade']}, NOW(), '{observacao}')
+                INSERT INTO parametros_ia (
+                    fk_avatar_id, fk_npc_id, proximidade, reputacao, lealdade, hostilidade, ultimo_evento, observacao
+                )
+                VALUES ({fk_avatar_id}, {fk_npc_id}, {data['proximidade']}, {data['reputacao']},
+                        {data['lealdade']}, {data['hostilidade']}, NOW(), '{data['justificativa']}')
                 ON DUPLICATE KEY UPDATE
-                    proximidade = proximidade + {impacto['proximidade']},
-                    reputacao = reputacao + {impacto['reputacao']},
-                    lealdade = lealdade + {impacto['lealdade']},
-                    hostilidade = hostilidade + {impacto['hostilidade']},
+                    proximidade = proximidade + {data['proximidade']},
+                    reputacao = reputacao + {data['reputacao']},
+                    lealdade = lealdade + {data['lealdade']},
+                    hostilidade = hostilidade + {data['hostilidade']},
                     ultimo_evento = NOW(),
-                    observacao = CONCAT(observacao, '\n', '{observacao}');
+                    observacao = CONCAT(observacao, '\n', '{data['justificativa']}');
             """
             db.cursor.execute(query)
             db.db.commit()
