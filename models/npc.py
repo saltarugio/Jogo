@@ -1,11 +1,14 @@
 import json
 from click import prompt
+from rich.console import Console
 import banco.conection as db
 from  IA.ia import DeepSeekIA
 from models.historico import Historico
-from IA.parametros_ia import atualizar as atualizar_parametros_ia
+from IA.parametros_ia import ParametrosIA as atualizar_parametros_ia
 from IA.contexto_parametro import montar_contexto_parametros
 import time
+
+console = Console()
 
 class NPC:
     def __init__(self, id=None, nome=None, raca=None, personalidade=None, profissao=None, historia_pessoal=None, fk_mapa_id=None):
@@ -38,16 +41,16 @@ class NPC:
             return []     
 
     @staticmethod
-    def responder(npc, prompt, avatar_id, historico, mapa):
+    def responder(npc, prompt, avatar_id, historico, mapa, contexto_parametros):
         try:
-            resposta = DeepSeekIA.gerar_resposta(npc, avatar_id, historico, prompt, mapa)
+            resposta = DeepSeekIA.gerar_resposta(npc, avatar_id, historico, prompt, mapa, contexto_parametros)
             return resposta
         except Exception as e:
             print(f"[NPC] Erro ao responder: {e}")
             return "O NPC ficou em silêncio..."
 
     @staticmethod
-    def executar_interacao_completa(avatar, npc, mapa_atual):
+    def executa_interacao(avatar, npc, mapa_atual):
         prompt = input("Você: ").strip()[:200]
         if prompt.lower() in ["sair", "exit", "quit"]:
             print("🚪 Encerrando conversa.")
@@ -62,10 +65,10 @@ class NPC:
         for letra in resposta:
             console.print(f"{letra}", end='', style="white")
             time.sleep(0.02)  # Ajuste o tempo para controlar a velocidade da "digitação"
-            console.print()  # Nova linha após a resposta
+        console.print()  # Nova linha após a resposta
 
         avaliacao = DeepSeekIA.avaliacao_emocional(
-            npc.nome,
+            npc,
             avatar.nome,
             f"O jogador disse: {prompt}. O NPC respondeu: {resposta}.",
             mapa_atual

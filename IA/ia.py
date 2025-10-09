@@ -164,6 +164,9 @@ class DeepSeekIA:
         try:
             response = requests.post(OLLAMA_URL, headers=OLLAMA_HEADERS, data=json.dumps(payload))
             response.raise_for_status()
+            resposta = response.json()
+            conteudo = resposta["choices"][0]["message"]["content"]
+            return json.loads(conteudo)
         except requests.exceptions.HTTPError as e:
             return None
         except Exception as e:

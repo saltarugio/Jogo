@@ -141,7 +141,7 @@ while True:
             npc_escolhido = None
 
         if npc_escolhido:
-            console.print(f"\n💬 Conversando com [bold yellow]{npc_escolhido.nome}[/]...\n")
+            print(f"\n💬 Conversando com [bold yellow]{npc_escolhido.nome}[/]...\n")
             while True:
                 NPC.executa_interacao(avatar, npc_escolhido, mapa_atual)
         else:
