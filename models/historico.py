@@ -1,5 +1,7 @@
 import banco.conection as db
+from rich.console import Console
 
+console = Console()
 class Historico:
     @staticmethod
     def registrar_interacao(fk_avatar_id, fk_npc_id, prompt_usuario, resposta_ia):
@@ -31,7 +33,7 @@ class Historico:
         except Exception as e:
             # Se algo deu errado, desfaz tudo
             db.db.rollback()
-            print("[Histórico] Erro ao registrar interação:", e)
+            console.print("[bold red][Histórico] Erro ao registrar interação:", e)
             return False
 
         finally:
@@ -53,7 +55,7 @@ class Historico:
             return results[::-1]  # inverte para ordem cronológica
         except Exception as e:
             db.close()
-            print(f"[Historico] Erro ao buscar histórico: {e}")
+            console.print(f"[bold red][Historico] Erro ao buscar histórico: {e}")
             return []
         
     @staticmethod    
@@ -72,5 +74,5 @@ class Historico:
             return result
         except Exception as e:
             db.close()
-            print(f"[Historico] Erro ao buscar parâmetros IA: {e}")
+            console.print(f"[bold red][Historico] Erro ao buscar parâmetros IA: {e}")
             return None

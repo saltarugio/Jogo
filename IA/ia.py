@@ -3,6 +3,9 @@ import json
 import re
 from IA.config import OLLAMA_API_DEEPSEEK_V3, OLLAMA_API_QWEN3_CODER, OLLAMA_API_DEEPSEEK_R1
 import unicodedata
+from rich.console import Console
+
+console = Console()
 
 
 MODELO_ESCOLHIDO = "deepseekv3" # Opções: "deepseekv3", "qwen3", "deepseekr1"
@@ -165,8 +168,8 @@ class DeepSeekIA:
             response = requests.post(OLLAMA_URL, headers=OLLAMA_HEADERS, data=json.dumps(payload))
             response.raise_for_status()
             resposta = response.json()
-            conteudo = resposta["choices"][0]["message"]["content"]
-            return json.loads(conteudo)
+            # conteudo = resposta["choices"][0]["message"]["content"]
+            return resposta["choices"][0]["message"]["content"]
         except requests.exceptions.HTTPError as e:
             return None
         except Exception as e:

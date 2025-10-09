@@ -1,6 +1,9 @@
 import banco.conection as db
 import json
 from datetime import datetime
+from rich.console import Console
+
+console = Console()
 
 class ParametrosIA:
     @staticmethod
@@ -30,6 +33,6 @@ class ParametrosIA:
             return True
 
         except Exception as e:
-            print("Erro ao atualizar parâmetros IA:", e)
+            console.print("[bold red]Erro ao atualizar parâmetros IA:", e)
             db.db.rollback()
             return False

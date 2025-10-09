@@ -1,13 +1,10 @@
-import json
 import subprocess
 import time
 import requests
 from rich.console import Console
-from IA.ia import DeepSeekIA
 from models.usuario import Usuario
 from models.avatar import Avatar
 from models.npc import NPC
-from models.historico import Historico
 from models.mapa import Mapa  # precisa existir
 
 
@@ -48,8 +45,17 @@ def ensure_ollama_is_running():
 usuario = None
 while not usuario:
     if ensure_ollama_is_running():
-        login = input("Digite seu login: ")
-        senha = input("Digite sua senha: ")
+        console.print("🔐 Por favor, faça o login ou cadastre-se.")
+        opcao = input("Deseja [l]ogin ou [c]adastrar? ").lower()
+        if opcao == "c":
+            login = input("Escolha um login: ")
+            senha = input("Escolha uma senha: ")
+            usuario = Usuario.criar(login, senha)
+            console.print(f"🎉 Usuário {usuario.nome_usuario} criado com sucesso!")
+            opcao = "l"
+        else:
+            login = input("Digite seu login: ")
+            senha = input("Digite sua senha: ")
     else:
         console.print("❌ Não foi possível conectar ao Ollama. Verifique se o Ollama está instalado e configurado corretamente.")
         exit()
@@ -141,9 +147,9 @@ while True:
             npc_escolhido = None
 
         if npc_escolhido:
-            print(f"\n💬 Conversando com [bold yellow]{npc_escolhido.nome}[/]...\n")
+            console.print(f"\n💬 Conversando com [bold yellow]{npc_escolhido.nome}[/]...\n")
             while True:
-                NPC.executa_interacao(avatar, npc_escolhido, mapa_atual)
+                console.print(f"[bold yellow]{npc_escolhido.nome}: {NPC.executa_interacao(avatar, npc_escolhido, mapa_atual)}")
         else:
             console.print("⚠️ NPC inválido.")
 

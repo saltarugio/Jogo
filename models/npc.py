@@ -4,7 +4,7 @@ from rich.console import Console
 import banco.conection as db
 from  IA.ia import DeepSeekIA
 from models.historico import Historico
-from IA.parametros_ia import ParametrosIA as atualizar_parametros_ia
+from IA.parametros_ia import ParametrosIA
 from IA.contexto_parametro import montar_contexto_parametros
 import time
 
@@ -37,7 +37,7 @@ class NPC:
             return [NPC(**row) for row in results]
         except Exception as e:
             db.close()
-            print(f"Erro ao listar NPCs: {e}")
+            console.print(f"[bold red]Erro ao listar NPCs: {e}")
             return []     
 
     @staticmethod
@@ -46,14 +46,14 @@ class NPC:
             resposta = DeepSeekIA.gerar_resposta(npc, avatar_id, historico, prompt, mapa, contexto_parametros)
             return resposta
         except Exception as e:
-            print(f"[NPC] Erro ao responder: {e}")
+            console.print(f"[bold red][NPC] Erro ao responder: {e}")
             return "O NPC ficou em silêncio..."
 
     @staticmethod
     def executa_interacao(avatar, npc, mapa_atual):
         prompt = input("Você: ").strip()[:200]
         if prompt.lower() in ["sair", "exit", "quit"]:
-            print("🚪 Encerrando conversa.")
+            console.print("🚪[bold yellow]Encerrando conversa.")
             return False
 
         historico = Historico.buscar_por_avatar_e_npc(avatar.id, npc.id, limite=10)
@@ -75,7 +75,7 @@ class NPC:
         )
 
         if avaliacao:
-            atualizar_parametros_ia(avatar.id, npc.id, json.dumps(avaliacao, ensure_ascii=False))
+            ParametrosIA.atualizar(avatar.id, npc.id, avaliacao)
 
         Historico.registrar_interacao(
             fk_avatar_id=avatar.id,

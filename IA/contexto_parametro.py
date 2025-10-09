@@ -9,6 +9,12 @@ def montar_contexto_parametros(parametros_ia, avatar, npc):
 
     proximidade, reputacao, lealdade, hostilidade, observacao = parametros_ia
 
+    # ✅ Garante os valores dentro do esperado
+    proximidade = int(proximidade)
+    reputacao = int(reputacao)
+    lealdade = int(lealdade)
+    hostilidade = int(hostilidade)
+
     def interpretar(valor, positivo, negativo, neutro="neutro"):
         """Retorna uma frase curta conforme o nível do valor."""
         if valor >= 70:
