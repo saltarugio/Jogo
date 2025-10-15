@@ -1,177 +1,227 @@
 import subprocess
 import time
 import requests
+import logging
+import getpass
 from rich.console import Console
 from models.usuario import Usuario
 from models.avatar import Avatar
 from models.npc import NPC
-from models.mapa import Mapa  # precisa existir
+from models.mapa import Mapa
 
+#------------------- CONFIGURAÇÃO --------------------
+OLLAMA_URL = "http://localhost:11434"
+OLLAMA_MAX_WAIT = 10  # segundos
 
 console = Console()
+logging.basicConfig(filename="game.log", level=logging.ERROR)
 
-console.print("🎮 Bem-vindo ao [bold green]Mundo Interativo[/]!")
+#----------------- Utilitários de Mensagens -----------------
+def msg_sucesso(texto):
+    console.print(f"[bold green]✅ {texto}[/]")
 
-def ensure_ollama_is_running():
-    ollama_url = "http://localhost:11434"
-    
-    # Tentar verificar se o serviço já está rodando
+def msg_info(texto):
+    console.print(f"[bold blue]ℹ️ {texto}[/]")
+
+def msg_alerta(texto):
+    console.print(f"[bold yellow]⚠️ {texto}[/]")
+
+def msg_erro(texto):
+    console.print(f"[bold red]❌ {texto}[/]")
+
+# --------------------- OLLAMA -------------------------------
+def ollama():
+    """Garante que o Ollama está rodando, tentando iniciar se necessário."""
     try:
-        requests.get(ollama_url, timeout=5)
-        console.print("Ollama já está rodando.")
+        requests.get(OLLAMA_URL, timeout=3)
         return True
     except requests.exceptions.RequestException:
-        console.print("Ollama não encontrado. Tentando iniciar o servidor...")
-        
-    # Se não estiver rodando, tentar iniciá-lo
+        msg_alerta("Ollama não encontrado. Tentando iniciar o servidor...")
+    
     try:
-        # O comando 'ollama serve' inicia o servidor.
-        # Usa-se 'subprocess.Popen' para que o comando rode em segundo plano
-        # e não bloqueie a execução do seu jogo.
         subprocess.Popen(['ollama', 'serve'])
-        
-        # Dar um tempo para o servidor iniciar
-        console.print("Aguardando o Ollama iniciar...")
-        time.sleep(10)
-        
-        # Verificar novamente se o serviço está disponível
-        requests.get(ollama_url, timeout=5)
-        console.print("Ollama iniciado com sucesso!")
-        return True
-    except Exception as e:
-        console.print(f"Erro ao iniciar o Ollama: {e}")
+        for i in range(OLLAMA_MAX_WAIT):
+            time.sleep(1)
+            try:
+                requests.get(OLLAMA_URL, timeout=2)
+                return True
+            except requests.exceptions.RequestException:
+                continue
+        msg_erro("Tempo esgotado ao tentar iniciar o Ollama.")
         return False
+    except Exception as e:
+        msg_erro(f"Erro ao iniciar o Ollama: {e}")
+        logging.error(f"Erro ao iniciar o Ollama: {e}")
+        return False
+    
 # ----------------- LOGIN LOOP -----------------
-usuario = None
-while not usuario:
-    if ensure_ollama_is_running():
-        console.print("🔐 Por favor, faça o login ou cadastre-se.")
+def menu_login():
+    usuario = None
+
+    while not usuario:
+        msg_alerta("🔐 Por favor, faça o login ou cadastre-se.")
         opcao = input("Deseja [l]ogin ou [c]adastrar? ").lower()
         if opcao == "c":
             login = input("Escolha um login: ")
-            senha = input("Escolha uma senha: ")
-            usuario = Usuario.criar(login, senha)
-            console.print(f"🎉 Usuário {usuario.nome_usuario} criado com sucesso!")
-            opcao = "l"
-        else:
+            senha = getpass.getpass("Escolha uma senha: ")
+            conf_senha = getpass.getpass("Confirme sua senha: ")
+            if senha != conf_senha:
+                msg_erro("As senhas não coincidem.")
+                continue
+            else:
+                usuario = Usuario.criar(login, senha)
+                msg_info(f"🎉 Usuário {usuario.nome_usuario} criado com sucesso!")
+            continue
+        elif opcao == "l":
             login = input("Digite seu login: ")
-            senha = input("Digite sua senha: ")
-    else:
-        console.print("❌ Não foi possível conectar ao Ollama. Verifique se o Ollama está instalado e configurado corretamente.")
-        exit()
+            senha = getpass.getpass("Digite sua senha: ")
+            usuario = Usuario.buscar_por_login(login, senha)
 
-    usuario = Usuario.buscar_por_login(login, senha)
-
-    if not usuario:
-        console.print("⚠️ Usuário não encontrado ou senha incorreta!")
-        opcao = input("Deseja [l]ogin novamente, [c]adastrar ou [s]air? ").lower()
-
-        if opcao == "c":
-            novo_usuario = Usuario.criar(login, senha)
-            console.print(f"🎉 Usuário {novo_usuario.nome_usuario} criado com sucesso!")
-            usuario = novo_usuario
-        elif opcao == "s":
-            console.print("🚪 Saindo do sistema.")
-            exit()
+            if not usuario:
+                msg_erro("Usuário não encontrado ou senha incorreta!")
+                nova = input("Deseja [l]ogin novamente, [c]adastrar ou [s]air? ").lower()
+                if nova == "c":
+                    return menu_login()
+                elif nova == "s":
+                    msg_info("🚪 Saindo do sistema.")
+                    exit()
+                else:
+                    continue
         else:
-            usuario = None
-
-console.print(f"✅ Bem-vindo de volta, {usuario.nome_usuario}!")
+            msg_erro("Opção inválida.")
+            continue
+    msg_info(f"✅ Bem-vindo de volta, {usuario.nome_usuario}!")
+    return usuario
 
 # ----------------- AVATAR -----------------
-avatar = None
-avatares = usuario.listar_avatar()
+def menu_avatar(usuario):
+    """Gerencia a seleção ou criação de avatar."""
+    avatares = usuario.listar_avatar()
 
-if not avatares:
-    console.print("⚠️ Você ainda não tem avatares, crie um novo para jogar.")
-    nome_avatar = input("Digite o nome do seu avatar: ")
-    avatar = Avatar.criar(nome_avatar, usuario.id)
-else:
-    while not avatar:
+    if not avatares:
+        msg_alerta("⚠️ Você ainda não tem avatares, crie um novo para jogar.")
+        nome_avatar = input("Digite o nome do seu avatar: ")
+        avatar = Avatar.criar(nome_avatar, usuario.id)
+        if not avatar:
+            msg_erro("Erro ao criar avatar. Tente novamente.")
+            return menu_avatar(usuario)
+        else:
+            msg_sucesso(f"🎉 Avatar {avatar.nome} criado com sucesso!")
+        return avatar
+    while True:
         console.print("\nEscolha um avatar para jogar:")
         for i, avatar_item in enumerate(avatares, start=1):
             console.print(f"{i}. {avatar_item.nome}")
-
-        try:
-            console.print("Escolha um avatar da lista, ou digite 0 para criar um novo:")
-            escolha = int(input("Digite o número do avatar escolhido: ")) - 1
-            if escolha == -1:
-                console.print("Criação de um novo avatar...")
-                nome_avatar = input("Digite o nome do seu avatar: ")
-                avatar = Avatar.criar(nome_avatar, usuario.id)
-                avatares = usuario.listar_avatar()
-
-            avatar = avatares[escolha] if 0 <= escolha < len(avatares) else None
-            
-        except ValueError:
-            avatar = None
-            
-        if not avatar:
-            console.print("⚠️ Avatar inválido. Tente novamente.")
-
-console.print(f"🎭 Avatar escolhido: [bold cyan]{avatar.nome}[/]")
-
-# ----------------- MAPAS E LOOP PRINCIPAL -----------------
-mapas = Mapa.listar()  # precisa retornar todos os mapas em ordem (id crescente)
-indice_mapa = 0  # começa no primeiro mapa
-mapa_atual = mapas[indice_mapa]
-while True:
-    console.print(f"\n🗺️ Você está no mapa: [bold green]{mapa_atual.nome}[/]")
-
-    # listar NPCs do mapa
-    npcs = NPC.listar_por_mapa(mapa_atual.id)
-
-    # menu principal
-    if npcs:
-        console.print("Escolha uma ação:")
-        console.print("c. Conversar com NPC")
-        console.print("m. Mudar de mapa")
-    else:
-        console.print("⚠️ Não há NPCs neste mapa.")
-        console.print("Você só pode [m]udar de mapa")
-    if not mapas:
-        console.print("⚠️ Nenhum mapa cadastrado!")
-        exit()
-
-    escolha = input("Digite sua escolha: ").lower()
-
-    if escolha == "c" and npcs:
-        console.print("\nEscolha um NPC para conversar:")
-        for i, npc in enumerate(npcs, start=1):
-            console.print(f"{i}. {npc.nome} ({npc.raca})")
+        
+        escolha = input("Escolha um avatar da lista, ou digite 0 para criar um novo: ")
         
         try:
-            escolha_npc = int(input("Digite o número do NPC: ")) - 1
-            npc_escolhido = npcs[escolha_npc] if 0 <= escolha_npc < len(npcs) else None
+            escolha = int(escolha)
         except ValueError:
-            npc_escolhido = None
+            msg_erro("Escolha inválida. Tente novamente.")
+            continue
 
-        if npc_escolhido:
-            console.print(f"\n💬 Conversando com [bold yellow]{npc_escolhido.nome}[/]...\n")
-            while True:
-                console.print(f"[bold yellow]{npc_escolhido.nome}: {NPC.executa_interacao(avatar, npc_escolhido, mapa_atual)}")
+        if escolha == 0:
+            nome_avatar = input("Digite o nome do seu avatar: ")
+            avatar = Avatar.criar(nome_avatar, usuario.id)
+            if not avatar:
+                msg_erro("Erro ao criar avatar. Tente novamente.")
+                continue
+            else:
+                msg_sucesso(f"🎉 Avatar {avatar.nome} criado com sucesso!")
+                return avatar
+        elif 1 <= escolha <= len(avatares):
+            avatar = avatares[escolha - 1]
+            msg_sucesso(f"🎭 Avatar escolhido: {avatar.nome}")
+            return avatar
         else:
-            console.print("⚠️ NPC inválido.")
+            msg_erro("Escolha inválida. Tente novamente.")
 
-    elif escolha == "m":
-        # navegação entre mapas
-        if indice_mapa == 0:  # primeiro mapa
-            console.print("Você só pode ir para o [p]róximo mapa.")
-            if input("Ir para o próximo? (s/n) ").lower() == "s":
-                indice_mapa += 1
-        elif indice_mapa == len(mapas) - 1:  # último mapa
-            console.print("Você só pode voltar para o [a]nterior.")
-            if input("Voltar para o anterior? (s/n) ").lower() == "s":
-                indice_mapa -= 1
-        else:
-            console.print("Você pode ir para o [a]nterior ou [p]róximo.")
-            direcao = input("Escolha [a] ou [p]: ").lower()
-            if direcao == "a":
-                indice_mapa -= 1
-            elif direcao == "p":
-                indice_mapa += 1
+# ----------------- CONVERSA COM NPC -----------------
+def conversar_com_npc(avatar, mapa_atual):
+    """Gerencia a seleção de NPC e a conversa."""
+    npcs = NPC.listar_por_mapa(mapa_atual.id)
 
+    if not npcs:
+        msg_alerta("⚠️ Não há NPCs neste mapa.")
+        return
+    
+    console.print("\nEscolha um NPC para conversar:")
+    for i, npc in enumerate(npcs, start=1):
+        console.print(f"{i}. {npc.nome} ({npc.raca})")
+    
+    try:
+        escolha_npc = int(input("Digite o número do NPC: ")) - 1
+        npc_escolhido = npcs[escolha_npc] if 0 <= escolha_npc < len(npcs) else None
+    except ValueError:
+        npc_escolhido = None
+    
+    if not npc_escolhido:
+        msg_erro("NPC inválido.")
+        return
+    msg_info(f"💬 Conversando com {npc_escolhido.nome}...\n")
+    while True:
+        resposta = NPC.executa_interacao(avatar, npc_escolhido, mapa_atual)
+        console.print(f"[bold yellow]{npc_escolhido.nome}: {resposta}[/]")
+        if resposta is False:
+            break
+
+# ----------------- MAPAS E LOOP PRINCIPAL -----------------
+def loop_principal(avatar):
+    """Gerencia a navegação entre mapas e interações."""
+    mapas = Mapa.listar()  # precisa retornar todos os mapas em ordem (id crescente)
+    if not mapas:
+        msg_erro("⚠️ Nenhum mapa cadastrado!")
+        exit()
+    indice_mapa = avatar.fk_mapa_id - 1  # começa no mapa do avatar
+
+    while True:
         mapa_atual = mapas[indice_mapa]
+        console.print(f"\n🗺️ Você está no mapa: [bold green]{mapa_atual.nome}[/] \n")
+        npcs = NPC.listar_por_mapa(mapa_atual.id)
 
-    else:
-        console.print("⚠️ Opção inválida.")
+        msg_info("Ações disponíveis:")
+        if npcs:
+            console.print("c. Conversar com NPC")
+            console.print("m. Mudar de mapa")
+            console.print("q. Sair do jogo")
+        
+        escolha = input("Escolha uma opção: ").lower()
+
+        if escolha == "c" and npcs:
+            conversar_com_npc(avatar, mapa_atual)
+        elif escolha == "m":
+            if indice_mapa == 0:  # primeiro mapa
+                msg_info("Você só pode ir para o [p]róximo mapa.")
+                if input("Ir para o próximo? (s/n) ").lower() == "s":
+                    indice_mapa += 1
+            elif indice_mapa == len(mapas) - 1:  # último mapa
+                msg_info("Você só pode voltar para o [a]nterior.")
+                if input("Voltar para o anterior? (s/n) ").lower() == "s":
+                    indice_mapa -= 1
+            else:
+                msg_info("Você pode ir para o [a]nterior ou [p]róximo.")
+                if input("Escolha [a] ou [p]: ").lower() == "a":
+                    indice_mapa -= 1
+                else:
+                    indice_mapa += 1
+            avatar.atualiza_posicao_avatar(avatar.id, mapas[indice_mapa].id)
+        elif escolha == "q":
+            msg_info("🚪 Saindo do jogo. Até a próxima!")
+            break
+        else:
+            msg_erro("Opção inválida. Tente novamente.")
+
+# ----------------- INÍCIO DO JOGO -----------------
+def main():
+    console.print("🎮 Bem-vindo ao [bold green]Mundo Interativo[/]!")
+    if not ollama():
+        msg_erro("Não foi possível conectar ao Ollama. Verifique se o Ollama está instalado e configurado corretamente.")
+        exit()
+    
+    usuario = menu_login()
+    avatar = menu_avatar(usuario)
+    loop_principal(avatar)
+
+if __name__ == "__main__":
+    main()

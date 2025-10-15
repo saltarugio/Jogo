@@ -4,10 +4,17 @@ def montar_contexto_parametros(parametros_ia, avatar, npc):
     baseada nos valores numéricos dos parâmetros armazenados no banco.
     """
     
-    if not parametros_ia:
+    if not parametros_ia or all(v == 0 for v in parametros_ia.values()):
         return f"{npc.nome} acabou de conhecer {avatar.nome}. Ainda não há sentimentos definidos entre eles."
 
     proximidade, reputacao, lealdade, hostilidade, observacao = parametros_ia
+
+    #Extração segura do dicionário
+    proximidade = parametros_ia.get("proximidade", 0)
+    reputacao = parametros_ia.get("reputacao", 0)
+    lealdade = parametros_ia.get("lealdade", 0)
+    hostilidade = parametros_ia.get("hostilidade", 0)
+    observacao = parametros_ia.get("observacao", "")
 
     # ✅ Garante os valores dentro do esperado
     proximidade = int(proximidade)
