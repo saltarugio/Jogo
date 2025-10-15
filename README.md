@@ -35,29 +35,48 @@ O objetivo é permitir interações únicas, com respostas adaptáveis baseadas 
 🧩 Estrutura do Projeto
 
 /ChatNPCs
+
 ├── /IA
+
 │   ├── ia.py                 # Classe principal de comunicação com o modelo de IA
+
 │   ├── parametros_ia.py      # Sistema de parâmetros emocionais (proximidade, reputação, etc.)
+
 │
+
 ├── /models
+
 │   ├── usuario.py            # Representação dos jogadores/usuários
+
 │   ├── avatar.py             # Dados do avatar do jogador
+
 │   ├── npc.py                # Dados e personalidade dos NPCs
+
 │   ├── mapa.py               # Estrutura do mundo e localização dos NPCs
+
 │   └── historico.py          # Registro das interações entre jogador e NPCs
+
 │
+
 ├── /python
+
 │   └── servidor.py           # Servidor de comunicação entre jogo e IA
+
 │
+
 ├── /banco
+
 │   └── conection.py          # Conexão com o banco MySQL/phpMyAdmin
+
 │
+
 ├── main.py                   # Script principal que inicializa o jogo e a IA
+
 └── README.md                 # Documentação do projeto
 
 💡 Observações
 
-  ⚙️ Sobre a IA:
+⚙️ Sobre a IA:
   O projeto utiliza o Ollama como servidor intermediário para comunicação com o modelo DeepSeek v3.1 (cloud).
   Embora a execução principal do código e a gestão de contexto sejam realizadas localmente, o modelo em si é processado em nuvem.
   Essa abordagem híbrida foi escolhida por limitações de hardware, mantendo o mesmo formato de integração utilizado para execução local completa.
