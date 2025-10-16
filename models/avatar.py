@@ -44,7 +44,7 @@ class Avatar:
                     WHERE c.fk_usuario_id = %s
                 """
                 banco.cursor.execute(query, (usuario_id,))
-                results = db.cursor.fetchall()
+                results = banco.cursor.fetchall()
                 return [Avatar(**row) for row in results]
         except Exception as e:
             print(f"Erro ao listar avatares: {e}")

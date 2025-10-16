@@ -10,21 +10,37 @@ class ParametrosIA:
         try:
             data = json.loads(resposta_ia_json)
             with db.Banco() as banco:
-                query = f"""
+                query = """
                     INSERT INTO parametros_ia (
                         fk_avatar_id, fk_npc_id, proximidade, reputacao, lealdade, hostilidade, ultimo_evento, observacao
-                    )
-                VALUES ({fk_avatar_id}, {fk_npc_id}, {data['proximidade']}, {data['reputacao']},
-                        {data['lealdade']}, {data['hostilidade']}, NOW(), '{data['justificativa']}')
-                ON DUPLICATE KEY UPDATE
-                    proximidade = proximidade + {data['proximidade']},
-                    reputacao = reputacao + {data['reputacao']},
-                    lealdade = lealdade + {data['lealdade']},
-                    hostilidade = hostilidade + {data['hostilidade']},
-                    ultimo_evento = NOW(),
-                    observacao = CONCAT(observacao, '\n', '{data['justificativa']}');
-            """
-                banco.cursor.execute(query)
+                    ) VALUES (%s, %s, %s, %s, %s, %s, NOW(), %s)
+                    ON DUPLICATE KEY UPDATE
+                        proximidade = proximidade + %s,
+                        reputacao = reputacao + %s,
+                        lealdade = lealdade + %s,
+                        hostilidade = hostilidade + %s,
+                        ultimo_evento = NOW(),
+                        observacao = CONCAT(observacao, '\n', %s);
+                """
+                banco.cursor.execute(query, (
+                    fk_avatar_id, fk_npc_id,
+                    data['proximidade'], data['reputacao'],
+                    data['lealdade'], data['hostilidade'],
+                    data['justificativa'],
+                    data['proximidade'], data['reputacao'],
+                    data['lealdade'], data['hostilidade'],
+                    data['justificativa']
+                ))
+            #             {data['lealdade']}, {data['hostilidade']}, NOW(), '{data['justificativa']}')
+            #     ON DUPLICATE KEY UPDATE
+            #         proximidade = proximidade + {data['proximidade']},
+            #         reputacao = reputacao + {data['reputacao']},
+            #         lealdade = lealdade + {data['lealdade']},
+            #         hostilidade = hostilidade + {data['hostilidade']},
+            #         ultimo_evento = NOW(),
+            #         observacao = CONCAT(observacao, '\n', '{data['justificativa']}');
+            # """
+            #     banco.cursor.execute(query)
                 banco.db.commit()
                 return True
 

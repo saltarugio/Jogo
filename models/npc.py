@@ -58,7 +58,7 @@ class NPC:
 
         contexto_parametros = montar_contexto_parametros(parametros_ia, avatar, npc)
         resposta = NPC.responder(npc, prompt, avatar.nome, historico, mapa_atual, contexto_parametros)
-
+        console.print(f"[bold yellow]{npc.nome}: ")
         for letra in resposta:
             console.print(f"{letra}", end='', style="white")
             time.sleep(0.02)  # Ajuste o tempo para controlar a velocidade da "digitação"

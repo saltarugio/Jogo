@@ -6,10 +6,10 @@ from rich.console import Console
 console = Console()
 
 class Usuario:
-    def __init__(self, id, nome_usuario, senha_hash):
+    def __init__(self, id, nome_usuario, senha):
         self.id = id
         self.nome_usuario = nome_usuario
-        self.senha = senha_hash
+        self.senha = senha
     
     @staticmethod
     def hashing_senha(senha):
@@ -44,6 +44,8 @@ class Usuario:
                     usuario_id = banco.cursor.lastrowid
                     return Usuario(usuario_id, login, senha_hash)
         except Exception as e:
+            # if "UNIQUE constraint failed" in str(e):
+            #     raise ErroDuplicidade("Conta já existente.")
             console.print(f"[bold red]Erro ao criar usuário: {e}")
             return None
 

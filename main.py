@@ -60,7 +60,7 @@ def menu_login():
 
     while not usuario:
         msg_alerta("🔐 Por favor, faça o login ou cadastre-se.")
-        opcao = input("Deseja [l]ogin ou [c]adastrar? ").lower()
+        opcao = input("Deseja [l]ogin, [c]adastrar ou [s]air? ").lower()
         if opcao == "c":
             login = input("Escolha um login: ")
             senha = getpass.getpass("Escolha uma senha: ")
@@ -68,6 +68,9 @@ def menu_login():
             if senha != conf_senha:
                 msg_erro("As senhas não coincidem.")
                 continue
+            elif opcao == "s":
+                msg_info("🚪 Saindo do sistema.")
+                exit()
             else:
                 usuario = Usuario.criar(login, senha)
                 msg_info(f"🎉 Usuário {usuario.nome_usuario} criado com sucesso!")
@@ -79,14 +82,8 @@ def menu_login():
 
             if not usuario:
                 msg_erro("Usuário não encontrado ou senha incorreta!")
-                nova = input("Deseja [l]ogin novamente, [c]adastrar ou [s]air? ").lower()
-                if nova == "c":
-                    return menu_login()
-                elif nova == "s":
-                    msg_info("🚪 Saindo do sistema.")
-                    exit()
-                else:
-                    continue
+                usuario = None
+                continue
         else:
             msg_erro("Opção inválida.")
             continue
@@ -162,7 +159,7 @@ def conversar_com_npc(avatar, mapa_atual):
     msg_info(f"💬 Conversando com {npc_escolhido.nome}...\n")
     while True:
         resposta = NPC.executa_interacao(avatar, npc_escolhido, mapa_atual)
-        console.print(f"[bold yellow]{npc_escolhido.nome}: {resposta}[/]")
+        # console.print(f"[bold yellow]{npc_escolhido.nome}: {resposta}[/]")
         if resposta is False:
             break
 
