@@ -159,7 +159,6 @@ def conversar_com_npc(avatar, mapa_atual):
     msg_info(f"💬 Conversando com {npc_escolhido.nome}...\n")
     while True:
         resposta = NPC.executa_interacao(avatar, npc_escolhido, mapa_atual)
-        # console.print(f"[bold yellow]{npc_escolhido.nome}: {resposta}[/]")
         if resposta is False:
             break
 
@@ -180,8 +179,8 @@ def loop_principal(avatar):
         msg_info("Ações disponíveis:")
         if npcs:
             console.print("c. Conversar com NPC")
-            console.print("m. Mudar de mapa")
-            console.print("q. Sair do jogo")
+        console.print("m. Mudar de mapa")
+        console.print("q. Sair do jogo")
         
         escolha = input("Escolha uma opção: ").lower()
 

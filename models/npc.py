@@ -48,7 +48,7 @@ class NPC:
 
     @staticmethod
     def executa_interacao(avatar, npc, mapa_atual):
-        prompt = input("Você: ").strip()[:200]
+        prompt = input("Você: ").strip()[:10]
         if prompt.lower() in ["sair", "exit", "quit"]:
             console.print("🚪[bold yellow]Encerrando conversa.")
             return False
@@ -58,7 +58,7 @@ class NPC:
 
         contexto_parametros = montar_contexto_parametros(parametros_ia, avatar, npc)
         resposta = NPC.responder(npc, prompt, avatar.nome, historico, mapa_atual, contexto_parametros)
-        console.print(f"[bold yellow]{npc.nome}: ")
+        console.print(f"[bold yellow]{npc.nome}: ", end='')
         for letra in resposta:
             console.print(f"{letra}", end='', style="white")
             time.sleep(0.02)  # Ajuste o tempo para controlar a velocidade da "digitação"

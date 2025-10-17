@@ -40,11 +40,11 @@ def limpar_resposta_final(texto: str) -> str:
     for l in lixo:
         texto = texto.replace(l, "")
 
-    # NOVIDADE: Chama a função para remover acentos
-    texto = remover_acentos(texto)
+    # # NOVIDADE: Chama a função para remover acentos
+    # texto = remover_acentos(texto)
     
-    # Remove caracteres inválidos (agora sem acentos)
-    texto = re.sub(r"[^\w\s.,!?;:()-]", "", texto, flags=re.UNICODE) 
+    # # Remove caracteres inválidos (agora sem acentos)
+    # texto = re.sub(r"[^\w\s.,!?;:()-]", "", texto, flags=re.UNICODE) 
 
     # Evita respostas idênticas repetidas (loop)
     linhas = list(dict.fromkeys(texto.splitlines()))
