@@ -31,16 +31,6 @@ class ParametrosIA:
                     data['lealdade'], data['hostilidade'],
                     data['justificativa']
                 ))
-            #             {data['lealdade']}, {data['hostilidade']}, NOW(), '{data['justificativa']}')
-            #     ON DUPLICATE KEY UPDATE
-            #         proximidade = proximidade + {data['proximidade']},
-            #         reputacao = reputacao + {data['reputacao']},
-            #         lealdade = lealdade + {data['lealdade']},
-            #         hostilidade = hostilidade + {data['hostilidade']},
-            #         ultimo_evento = NOW(),
-            #         observacao = CONCAT(observacao, '\n', '{data['justificativa']}');
-            # """
-            #     banco.cursor.execute(query)
                 banco.db.commit()
                 return True
 

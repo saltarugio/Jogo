@@ -73,7 +73,9 @@ def menu_login():
                 exit()
             else:
                 usuario = Usuario.criar(login, senha)
-                msg_info(f"🎉 Usuário {usuario.nome_usuario} criado com sucesso!")
+                if usuario:
+                    msg_info(f"🎉 Usuário {usuario.nome_usuario} criado com sucesso!")
+                    continue
             continue
         elif opcao == "l":
             login = input("Digite seu login: ")
@@ -100,7 +102,7 @@ def menu_avatar(usuario):
         nome_avatar = input("Digite o nome do seu avatar: ")
         avatar = Avatar.criar(nome_avatar, usuario.id)
         if not avatar:
-            msg_erro("Erro ao criar avatar. Tente novamente.")
+            msg_erro("Avatar com esse nome já existe.")
             return menu_avatar(usuario)
         else:
             msg_sucesso(f"🎉 Avatar {avatar.nome} criado com sucesso!")
@@ -122,7 +124,7 @@ def menu_avatar(usuario):
             nome_avatar = input("Digite o nome do seu avatar: ")
             avatar = Avatar.criar(nome_avatar, usuario.id)
             if not avatar:
-                msg_erro("Erro ao criar avatar. Tente novamente.")
+                msg_erro("Avatar com esse nome já existe.")
                 continue
             else:
                 msg_sucesso(f"🎉 Avatar {avatar.nome} criado com sucesso!")

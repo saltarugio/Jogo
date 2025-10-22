@@ -27,13 +27,26 @@ class Usuario:
                     return Usuario(**row)
                 return None
         except Exception as e:
-            console.print(f"[bold red]Erro ao buscar usuário: {e}")
+            console.print(f"[bold red]❌ Erro ao buscar usuário: {e}")
             return None
-
+    
+    @staticmethod
+    def buscar_por_usuario(nome_usuario):
+        try:
+            with db.Banco() as banco:
+                query = "SELECT id FROM usuario WHERE nome_usuario = %s"
+                banco.cursor.execute(query, (nome_usuario,))
+                row = banco.cursor.fetchone()
+                if row:
+                    return True
+                return None
+        except Exception as e:
+            console.print(f"[bold red]❌ Erro ao buscar usuário: {e}")
+            return None
     @staticmethod
     def criar(login, senha):
         try:
-            existing_user = Usuario.buscar_por_login(login, senha)
+            existing_user = Usuario.buscar_por_usuario(login)
 
             if not existing_user:
                 senha_hash = Usuario.hashing_senha(senha)
@@ -43,9 +56,11 @@ class Usuario:
                     banco.db.commit()
                     usuario_id = banco.cursor.lastrowid
                     return Usuario(usuario_id, login, senha_hash)
+            else:
+                console.print(f"[bold red]Usuário já existente. Escolha outro nome de usuário.")
+                return None
         except Exception as e:
-            # if "UNIQUE constraint failed" in str(e):
-            #     raise ErroDuplicidade("Conta já existente.")
+            # 
             console.print(f"[bold red]Erro ao criar usuário: {e}")
             return None
 

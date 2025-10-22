@@ -8,30 +8,47 @@ class Avatar:
         self.fk_mapa_id = fk_mapa_id
 
     @staticmethod
-    def criar(nome, usuario_id):
+    def buscar_por_avatar(avatar):
         try:
             with db.Banco() as banco:
-                # Inicia transação
-                banco.db.start_transaction()
-
-                # Inserir avatar
-                query = "INSERT INTO avatar (nome, fk_mapa_id) VALUES (%s, %s)"
-                banco.cursor.execute(query, (nome, 1))  # fk_mapa_id padrão
-                avatar_id = banco.cursor.lastrowid
-
-                # Criar relação na tabela contem
-                query = "INSERT INTO contem (fk_avatar_id, fk_usuario_id) VALUES (%s, %s)"
-                banco.cursor.execute(query, (avatar_id, usuario_id))
-
-                # Confirma tudo
-                banco.db.commit()
-                return Avatar(avatar_id, nome, usuario_id, 1)
-
+                query = "SELECT id FROM avatar WHERE nome = %s"
+                banco.cursor.execute(query, (avatar,))
+                row = banco.cursor.fetchone()
+                if row:
+                    return True
+                return None
         except Exception as e:
-            # Se algo falhar, desfaz
-            banco.db.rollback()
-            print(f"Erro ao criar avatar: {e}")
+            print(f"Erro ao buscar avatar: {e}")
             return None
+    
+    @staticmethod
+    def criar(nome, usuario_id):
+        if Avatar.buscar_por_avatar(nome):
+            return None
+        else:
+            try:
+                with db.Banco() as banco:
+                    # Inicia transação
+                    banco.db.start_transaction()
+
+                    # Inserir avatar
+                    query = "INSERT INTO avatar (nome, fk_mapa_id) VALUES (%s, %s)"
+                    banco.cursor.execute(query, (nome, 1))  # fk_mapa_id padrão
+                    avatar_id = banco.cursor.lastrowid
+
+                    # Criar relação na tabela contem
+                    query = "INSERT INTO contem (fk_avatar_id, fk_usuario_id) VALUES (%s, %s)"
+                    banco.cursor.execute(query, (avatar_id, usuario_id))
+
+                    # Confirma tudo
+                    banco.db.commit()
+                    return Avatar(avatar_id, nome, usuario_id, 1)
+
+            except Exception as e:
+                # Se algo falhar, desfaz
+                banco.db.rollback()
+                print(f"Erro ao criar avatar: {e}")
+                return None
 
     @staticmethod
     def listar_por_usuario(usuario_id):
