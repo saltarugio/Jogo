@@ -70,6 +70,7 @@ def menu_login():
                 continue
             elif opcao == "s":
                 msg_info("🚪 Saindo do sistema.")
+                Usuario.logout_usuario(usuario.id)
                 exit()
             else:
                 usuario = Usuario.criar(login, senha)
@@ -90,6 +91,9 @@ def menu_login():
             msg_erro("Opção inválida.")
             continue
     msg_info(f"✅ Bem-vindo de volta, {usuario.nome_usuario}!")
+    if not usuario.login_usuario(usuario.id):
+        msg_erro("Não foi possível registrar o login.")
+        usuario = None
     return usuario
 
 # ----------------- AVATAR -----------------
@@ -170,6 +174,7 @@ def loop_principal(avatar):
     mapas = Mapa.listar()  # precisa retornar todos os mapas em ordem (id crescente)
     if not mapas:
         msg_erro("⚠️ Nenhum mapa cadastrado!")
+        Usuario.logout_usuario(avatar.usuario_id)
         exit()
     indice_mapa = avatar.fk_mapa_id - 1  # começa no mapa do avatar
 
@@ -206,6 +211,7 @@ def loop_principal(avatar):
             avatar.atualiza_posicao_avatar(avatar.id, mapas[indice_mapa].id)
         elif escolha == "q":
             msg_info("🚪 Saindo do jogo. Até a próxima!")
+            Usuario.logout_usuario(avatar.usuario_id)
             break
         else:
             msg_erro("Opção inválida. Tente novamente.")

@@ -81,6 +81,7 @@ class DeepSeekIA:
             f"- REGRA PRINCIPAL: Responda APENAS o que o NPC diria. Nunca mostre raciocínio interno.\n"
             f"- REGRA DE FORMATO: Responda em 1 a 3 frases curtas. Não repita a pergunta do Jogador.\n"
             f"- REGRA DE CONTEXTO: Caso a pergunta do Jogador não tenha relação com o contexto, responda que não tem conhecimento sobre o assunto, mantendo a personalidade do NPC.\n"
+            f"- REGRA DE CONTEÚDO FORA DE CONTEXTO: Responda algo do tipo: 'Desculpe, não tenho conhecimento sobre isso.' ou 'Não sei nada sobre esse assunto.' ou '...' ou 'Isso não faz parte do meu conhecimento.'\n"
             f"- Contexto adicional (parâmetros IA): {contexto_parametros}\n"
             f"### END INSTRUCTIONS ###\n\n"
             
