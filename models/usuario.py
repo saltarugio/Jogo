@@ -9,7 +9,7 @@ from rich.console import Console
 console = Console()
 
 class Usuario:
-    def __init__(self, id, nome_usuario, senha, logado):
+    def __init__(self, id, nome_usuario, senha, logado=False):
         self.id = id
         self.nome_usuario = nome_usuario
         self.senha = senha
@@ -64,7 +64,6 @@ class Usuario:
                 console.print(f"[bold red]Usuário já existente. Escolha outro nome de usuário.")
                 return None
         except Exception as e:
-            # 
             console.print(f"[bold red]Erro ao criar usuário: {e}")
             return None
 

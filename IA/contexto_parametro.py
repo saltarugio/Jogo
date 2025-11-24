@@ -24,9 +24,9 @@ def montar_contexto_parametros(parametros_ia, avatar, npc):
 
     def interpretar(valor, positivo, negativo, neutro="neutro"):
         """Retorna uma frase curta conforme o nível do valor."""
-        if valor >= 70:
+        if valor >= 10:
             return positivo
-        elif valor <= -50:
+        elif valor <= -10:
             return negativo
         else:
             return neutro

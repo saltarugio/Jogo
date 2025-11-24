@@ -1,5 +1,6 @@
 import banco.conection as db
 import json
+import re
 from rich.console import Console
 
 console = Console()
@@ -8,7 +9,8 @@ class ParametrosIA:
     @staticmethod
     def atualizar(fk_avatar_id, fk_npc_id, resposta_ia_json):
         try:
-            data = json.loads(resposta_ia_json)
+            resposta_ia_json_limpa = ParametrosIA.limpar_json(resposta_ia_json)
+            data = json.loads(resposta_ia_json_limpa)
             with db.Banco() as banco:
                 query = """
                     INSERT INTO parametros_ia (
@@ -38,3 +40,6 @@ class ParametrosIA:
             console.print("[bold red]Erro ao atualizar parâmetros IA:", e)
             banco.db.rollback()
             return False
+    @staticmethod
+    def limpar_json(json_str):
+        return re.sub(r':\s*\+(\d+)', r': \1', json_str)

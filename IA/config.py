@@ -7,7 +7,7 @@ OLLAMA_API_DEEPSEEK_R1 = {
     "OLLAMA_URL": "http://localhost:11434/v1/chat/completions",
     "OLLAMA_HEADERS": {"Content-Type": "application/json"},
     "MODEL_NAME": "deepseek-r1:8b",
-     # Parâmetros que serão enviados diretamente no payload
+    # Parâmetros que serão enviados diretamente no payload
     "MAX_HISTORICO": 10,
     "TEMPERATURE": 0.7,
     "MAX_TOKENS": 512,
