@@ -26,9 +26,13 @@ O objetivo é permitir interações únicas, com respostas adaptáveis baseadas 
 ## ⚙️ Como Executar
 
 1. **Instale o Ollama**  
+<<<<<<< HEAD
   👉 [https://ollama.com/download](https://ollama.com/download)
   
    Efetue o login no site do **OLLAMA** e crie uma Api para poder usar o modelo do tipo cloud
+=======
+   👉 [https://ollama.com/download](https://ollama.com/download)
+>>>>>>> 5e27a737e49ee1b6b19f09bbc774554e4c6b97ac
 
 2. **Baixe e execute o modelo DeepSeek (versão cloud)**  
    ```bash
@@ -100,5 +104,8 @@ O objetivo é permitir interações únicas, com respostas adaptáveis baseadas 
   O projeto utiliza o Ollama como servidor intermediário para comunicação com o modelo DeepSeek v3.1 (cloud).
   Embora a execução principal do código e a gestão de contexto sejam realizadas localmente, o modelo em si é processado em nuvem.
   Essa abordagem híbrida foi escolhida por limitações de hardware, mantendo o mesmo formato de integração utilizado para execução local completa.
+<<<<<<< HEAD
   Dentro do Ollama Existem varios modelos além do usado no projeto sinta-se livre para escolher o que gostar mais.
   As IAs são do tipo generativos para processamento de texto.
+=======
+>>>>>>> 5e27a737e49ee1b6b19f09bbc774554e4c6b97ac

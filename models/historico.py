@@ -19,7 +19,11 @@ class Historico:
                 historico_id = banco.cursor.lastrowid
                 # Inserção na tabela interage
                 query_interage = """
+<<<<<<< HEAD
                     INSERT INTO interage_avatar_npc_historico_chats (fk_avatar_id, fk_npc_id, fk_historico_id)
+=======
+                    INSERT INTO interage_avatar_npc_historico (fk_avatar_id, fk_npc_id, fk_historico_id)
+>>>>>>> 5e27a737e49ee1b6b19f09bbc774554e4c6b97ac
                     VALUES (%s, %s, %s)
                 """
                 banco.cursor.execute(query_interage, (fk_avatar_id, fk_npc_id, historico_id))
@@ -39,7 +43,11 @@ class Historico:
             with db.Banco() as banco:
                 query = """
                     SELECT hc.mensagem_usuario, hc.resposta_ai FROM historico_chats as hc 
+<<<<<<< HEAD
                     INNER JOIN interage_avatar_npc_historico_chats as ianh ON hc.id = ianh.fk_historico_id 
+=======
+                    INNER JOIN interage_avatar_npc_historico as ianh ON hc.id = ianh.fk_historico_id 
+>>>>>>> 5e27a737e49ee1b6b19f09bbc774554e4c6b97ac
                     WHERE ianh.fk_avatar_id = %s AND ianh.fk_npc_id = %s ORDER BY id DESC LIMIT %s;
                 """
                 banco.cursor.execute(query, (fk_avatar_id, fk_npc_id, limite))
