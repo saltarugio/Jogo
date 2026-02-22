@@ -16,22 +16,13 @@ OLLAMA_API_DEEPSEEK_R1 = {
 }
 
 OLLAMA_API_DEEPSEEK_V3 = {
-<<<<<<< HEAD
     "OLLAMA_URL": "http://localhost:11434/api/chat",
-=======
-    "OLLAMA_URL": "http://localhost:11434/v1/chat/completions",
->>>>>>> 5e27a737e49ee1b6b19f09bbc774554e4c6b97ac
     "OLLAMA_HEADERS": {"Content-Type": "application/json"},
     "MODEL_NAME": "deepseek-v3.1:671b-cloud",
     # Parâmetros que serão enviados diretamente no payload
     "MAX_HISTORICO": 10,
-<<<<<<< HEAD
     "TEMPERATURE": 0.6,
     "MAX_TOKENS": 120,
-=======
-    "TEMPERATURE": 0.7,
-    "MAX_TOKENS": 512,
->>>>>>> 5e27a737e49ee1b6b19f09bbc774554e4c6b97ac
     "MIRASAT": False,
     "REPEAT_PENALTY": 1.1
 }

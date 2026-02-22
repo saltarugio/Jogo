@@ -89,7 +89,7 @@ class InteracaoService:
             fk_avatar_id=self.avatar.id,
             fk_npc_id=self.npc.id,
             prompt_usuario=texto,
-            resposta_ia=f'{{"resposta":"{resposta}"}}'
+            resposta_ia=resposta
         )
     
     def executar(self):

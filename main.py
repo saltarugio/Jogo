@@ -8,12 +8,8 @@ from models.usuario import Usuario
 from models.avatar import Avatar
 from models.npc import NPC
 from models.mapa import Mapa
-<<<<<<< HEAD
 from services.interacao import InteracaoService
 from services.autenticacao import AuthService
-
-=======
->>>>>>> 5e27a737e49ee1b6b19f09bbc774554e4c6b97ac
 
 #------------------- CONFIGURAÇÃO --------------------
 OLLAMA_URL = "http://localhost:11434"
@@ -74,41 +70,24 @@ def menu_login():
             if senha != conf_senha:
                 msg_erro("As senhas não coincidem.")
                 continue
-<<<<<<< HEAD
             usuario = Usuario.criar(login, senha)
             if usuario:
                 msg_info(f"🎉 Usuário {usuario.nome_usuario} criado com sucesso!")
-=======
-            elif opcao == "s":
-                msg_info("🚪 Saindo do sistema.")
-                Usuario.logout_usuario(usuario.id)
-                exit()
-            else:
-                usuario = Usuario.criar(login, senha)
-                if usuario:
-                    msg_info(f"🎉 Usuário {usuario.nome_usuario} criado com sucesso!")
-                    continue
->>>>>>> 5e27a737e49ee1b6b19f09bbc774554e4c6b97ac
             continue
         elif opcao == "l":
             login = input("Digite seu login: ")
             senha = getpass.getpass("Digite sua senha: ")
-<<<<<<< HEAD
-            
+
             try:
                 usuario = AuthService.autenticar(login, senha)
             except Exception as e:
                 msg_erro(str(e))
                 usuario = None
-=======
-            usuario = Usuario.buscar_por_login(login, senha)
->>>>>>> 5e27a737e49ee1b6b19f09bbc774554e4c6b97ac
 
             if not usuario:
                 msg_erro("Usuário não encontrado ou senha incorreta!")
                 usuario = None
                 continue
-<<<<<<< HEAD
         elif opcao == "s":
             msg_info("🚪 Saindo do sistema.")
             exit()
@@ -116,15 +95,6 @@ def menu_login():
             msg_erro("Opção inválida.")
     
     msg_info(f"✅ Bem-vindo de volta, {usuario.nome_usuario}!")
-=======
-        else:
-            msg_erro("Opção inválida.")
-            continue
-    msg_info(f"✅ Bem-vindo de volta, {usuario.nome_usuario}!")
-    if not usuario.login_usuario(usuario.id):
-        msg_erro("Não foi possível registrar o login.")
-        usuario = None
->>>>>>> 5e27a737e49ee1b6b19f09bbc774554e4c6b97ac
     return usuario
 
 # ----------------- AVATAR -----------------
@@ -193,18 +163,12 @@ def conversar_com_npc(avatar, mapa_atual):
     if not npc_escolhido:
         msg_erro("NPC inválido.")
         return
-<<<<<<< HEAD
     msg_alerta(f" PARA SAIR DA CONVERSA USAR PALAVRA: sair")
     msg_info(f"💬 Conversando com {npc_escolhido.nome}...\n")
     interacao = InteracaoService(avatar, npc_escolhido, mapa_atual)
     while True:
         resposta = interacao.executar()
         # resposta = NPC.executa_interacao(avatar, npc_escolhido, mapa_atual)
-=======
-    msg_info(f"💬 Conversando com {npc_escolhido.nome}...\n")
-    while True:
-        resposta = NPC.executa_interacao(avatar, npc_escolhido, mapa_atual)
->>>>>>> 5e27a737e49ee1b6b19f09bbc774554e4c6b97ac
         if resposta is False:
             break
 
@@ -214,11 +178,7 @@ def loop_principal(avatar):
     mapas = Mapa.listar()  # precisa retornar todos os mapas em ordem (id crescente)
     if not mapas:
         msg_erro("⚠️ Nenhum mapa cadastrado!")
-<<<<<<< HEAD
         AuthService.logout(avatar.usuario_id)
-=======
-        Usuario.logout_usuario(avatar.usuario_id)
->>>>>>> 5e27a737e49ee1b6b19f09bbc774554e4c6b97ac
         exit()
     indice_mapa = avatar.fk_mapa_id - 1  # começa no mapa do avatar
 
@@ -252,17 +212,10 @@ def loop_principal(avatar):
                     indice_mapa -= 1
                 else:
                     indice_mapa += 1
-<<<<<<< HEAD
             Avatar.atualiza_posicao_avatar(avatar.id, mapas[indice_mapa].id)
         elif escolha == "q":
             msg_info("🚪 Saindo do jogo. Até a próxima!")
             AuthService.logout(avatar.usuario_id)
-=======
-            avatar.atualiza_posicao_avatar(avatar.id, mapas[indice_mapa].id)
-        elif escolha == "q":
-            msg_info("🚪 Saindo do jogo. Até a próxima!")
-            Usuario.logout_usuario(avatar.usuario_id)
->>>>>>> 5e27a737e49ee1b6b19f09bbc774554e4c6b97ac
             break
         else:
             msg_erro("Opção inválida. Tente novamente.")
