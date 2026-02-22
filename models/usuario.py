@@ -19,17 +19,17 @@ class Usuario:
         return hashlib.sha256(senha.encode('utf-8')).hexdigest()
 
     @staticmethod
-    def buscar_por_login(nome_usuario, senha):
+    def buscar_por_login(login, senha):
         try:
             senha_hash = Usuario.hashing_senha(senha)
             with db.Banco() as banco:
                 query = "SELECT id, nome_usuario, senha, logado FROM usuario WHERE nome_usuario = %s AND senha = %s"
-                banco.cursor.execute(query, (nome_usuario, senha_hash))
+                banco.cursor.execute(query, (login, senha_hash))
                 row = banco.cursor.fetchone()
-                if row and row['logado'] == 0:
+                if row:
                     return Usuario(**row)
-                else:
-                    return None
+                return None
+
         except Exception as e:
             console.print(f"[bold red]❌ Erro ao buscar usuário: {e}")
             return None
@@ -71,93 +71,119 @@ class Usuario:
         return Avatar.listar_por_usuario(self.id)
     
     @staticmethod
-    def endereco_ip():
-        """Obtém o endereço IP do usuário."""
-        try:
-            hostname = socket.gethostname()
-            ip_address = socket.gethostbyname(hostname)
-            return ip_address
-        except Exception as e:
-            console.print(f"[bold red]❌ Erro ao obter endereço IP: {e}")
-            return "Desconhecido"
-    
-    @staticmethod
-    def obter_dispositivo():
-        """Obtém uma identificação única do dispositivo do usuário."""
-        try:
-            dispositivo_id = str(uuid.getnode())
-            return dispositivo_id
-        except Exception as e:
-            console.print(f"[bold red]❌ Erro ao obter dispositivo: {e}")
-            return "Desconhecido"
-
-    @staticmethod
-    def login_usuario(id_usuario):
-        """
-        Registra login e marca usuário como logado.
-        """
-        ip = Usuario.endereco_ip()  
-        dispositivo = Usuario.obter_dispositivo()  
-
+    def marcar_logado(usuario_id):
         try:
             with db.Banco() as banco:
-                #Cria um novo registro de login
-                query = """
-                    INSERT INTO historico_logon (usuario_id, data_login, ip, dispositivo)
-                    VALUES (%s, %s, %s, %s)
-                """
-                banco.cursor.execute(query, (id_usuario, datetime.now(), ip, dispositivo))
+                query = "UPDATE usuario SET logado = %s WHERE id = %s"
+                banco.cursor.execute(query, (1, usuario_id))
                 banco.db.commit()
-
-                #Atualiza o status de logado do usuário
-                update_query = "UPDATE usuario SET logado = %s WHERE id = %s"
-                banco.cursor.execute(update_query, (1, id_usuario))
-                banco.db.commit()
-
-                console.print(f"[bold green]✅ Login registrado com sucesso.")
                 return True
         except Exception as e:
-            console.print(f"[bold red]❌ Erro ao registrar login: {e}")
+            console.print(f"[bold red]Erro ao criar usuário: {e}")
             return None
-    
+
     @staticmethod
-    def logout_usuario(id_usuario):
-        """
-        Atualiza o ultimo registro de login e marca usuário como deslogado.
-        """
+    def marcar_deslogado(usuario_id):
         try:
             with db.Banco() as banco:
-                query = """
-                    UPDATE historico_logon SET data_logout = %s
-                    WHERE usuario_id = %s AND data_logout IS NULL
-                    ORDER BY id_historico_logon DESC LIMIT 1
-                """
-                banco.cursor.execute(query, (datetime.now(), id_usuario))
+                query = "UPDATE usuario SET logado = %s WHERE id = %s"
+                banco.cursor.execute(query, (0, usuario_id))
                 banco.db.commit()
+                return True
+        except Exception as e:
+            console.print(f"[bold red]Erro ao criar usuário: {e}")
+            return None
+        
+    """Vai sumir essa parte do código"""
+    # @staticmethod
+    # def endereco_ip():
+    #     """Obtém o endereço IP do usuário."""
+    #     try:
+    #         hostname = socket.gethostname()
+    #         ip_address = socket.gethostbyname(hostname)
+    #         return ip_address
+    #     except Exception as e:
+    #         console.print(f"[bold red]❌ Erro ao obter endereço IP: {e}")
+    #         return "Desconhecido"
+    
+    # @staticmethod
+    # def obter_dispositivo():
+    #     """Obtém uma identificação única do dispositivo do usuário."""
+    #     try:
+    #         dispositivo_id = str(uuid.getnode())
+    #         return dispositivo_id
+    #     except Exception as e:
+    #         console.print(f"[bold red]❌ Erro ao obter dispositivo: {e}")
+    #         return "Desconhecido"
+
+    # @staticmethod
+    # def login_usuario(id_usuario):
+    #     """
+    #     Registra login e marca usuário como logado.
+    #     """
+    #     ip = Usuario.endereco_ip()  
+    #     dispositivo = Usuario.obter_dispositivo()  
+
+    #     try:
+    #         with db.Banco() as banco:
+    #             #Cria um novo registro de login
+    #             query = """
+    #                 INSERT INTO historico_logon (usuario_id, data_login, ip, dispositivo)
+    #                 VALUES (%s, %s, %s, %s)
+    #             """
+    #             banco.cursor.execute(query, (id_usuario, datetime.now(), ip, dispositivo))
+    #             banco.db.commit()
+
+    #             #Atualiza o status de logado do usuário
+    #             update_query = "UPDATE usuario SET logado = %s WHERE id = %s"
+    #             banco.cursor.execute(update_query, (1, id_usuario))
+    #             banco.db.commit()
+
+    #             console.print(f"[bold green]✅ Login registrado com sucesso.")
+    #             return True
+    #     except Exception as e:
+    #         console.print(f"[bold red]❌ Erro ao registrar login: {e}")
+    #         return None
+    
+    # @staticmethod
+    # def logout_usuario(id_usuario):
+    #     """
+    #     Atualiza o ultimo registro de login e marca usuário como deslogado.
+    #     """
+    #     try:
+    #         with db.Banco() as banco:
+    #             query = """
+    #                 UPDATE historico_logon SET data_logout = %s
+    #                 WHERE usuario_id = %s AND data_logout IS NULL
+    #                 ORDER BY id_historico_logon DESC LIMIT 1
+    #             """
+    #             banco.cursor.execute(query, (datetime.now(), id_usuario))
+    #             banco.db.commit()
                
-                # Atualiza o status de logado do usuário
-                update_query = "UPDATE usuario SET logado = %s WHERE id = %s"
-                banco.cursor.execute(update_query, (0, id_usuario))
-                banco.db.commit()
+    #             # Atualiza o status de logado do usuário
+    #             update_query = "UPDATE usuario SET logado = %s WHERE id = %s"
+    #             banco.cursor.execute(update_query, (0, id_usuario))
+    #             banco.db.commit()
                 
-                return True
-        except Exception as e:
-            console.print(f"[bold red]❌ Erro ao buscar usuário logado: {e}")
-            return None
-    @staticmethod
-    def busca_historico_logon(login,senha):
-        """
-            Busca no historico de logins se o dispositivo é o mesmo que esta retentando fazer login
-        """
-        try:
-            with db.Banco() as banco:
-                dispositivo_login = Usuario.obter_dispositivo()
-                query = """
-                    SELECT usuario_id FROM historico_logon WHERE dispositivo = %s 
-                    ORDER BY id_historico_logon DESC LIMIT 1
-                    """
-                banco.cursor.execute(query, (dispositivo_login))
-                banco.db.commit
-        except Exception as e:
-            console.print(f"[bolde red]❌ Erro ao achar dispositivo")
-            return None
+    #             return True
+    #     except Exception as e:
+    #         console.print(f"[bold red]❌ Erro ao buscar usuário logado: {e}")
+    #         return None
+    
+    # @staticmethod
+    # def busca_historico_logon(login,senha):
+    #     """
+    #         Busca no historico de logins se o dispositivo é o mesmo que esta retentando fazer login
+    #     """
+    #     try:
+    #         with db.Banco() as banco:
+    #             dispositivo_login = Usuario.obter_dispositivo()
+    #             query = """
+    #                 SELECT usuario_id FROM historico_logon WHERE dispositivo = %s 
+    #                 ORDER BY id_historico_logon DESC LIMIT 1
+    #                 """
+    #             banco.cursor.execute(query, (dispositivo_login))
+    #             banco.db.commit
+    #     except Exception as e:
+    #         console.print(f"[bolde red]❌ Erro ao achar dispositivo")
+    #         return None
