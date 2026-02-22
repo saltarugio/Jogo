@@ -2,7 +2,7 @@
     Pré processamento do prompt do usuário
 """
 import re
-from services.camnho_json import caminho
+from services.caminho_json import caminho
 
 def substituir_abreviacoes(texto):
     ABREVIACAO = caminho()
