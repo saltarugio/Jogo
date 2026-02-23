@@ -7,14 +7,5 @@ class Mapa:
         self.descricao = descricao
         self.epoca = epoca
 
-    @staticmethod
-    def listar():
-        with db.Banco() as banco:
-            try:
-                query = "SELECT id, nome, descricao, epoca FROM mapas ORDER BY id ASC"
-                banco.cursor.execute(query)
-                results = banco.cursor.fetchall()
-                return [Mapa(**row) for row in results]
-            except Exception as e:
-                print(f"Erro ao listar mapas: {e}")
-                return []
+    def __repr__(self):
+        return f"<Mapa id={self.id} nome={self.nome}>"

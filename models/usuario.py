@@ -1,8 +1,8 @@
 import banco.conection as db
 import hashlib
-import socket
-import uuid
-from datetime import datetime
+# import socket
+# import uuid
+# from datetime import datetime
 from models.avatar import Avatar
 from rich.console import Console
 

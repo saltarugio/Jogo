@@ -3,7 +3,7 @@
 """
 from services.ambiente import AmbienteService
 from models.usuario import Usuario
-from repositorios.historico_logon import HistoricoLogon
+from repositorios.historico_logon_rep import HistoricoLogonRep
 from rich.console import Console
 
 console = Console()
@@ -25,12 +25,12 @@ class AuthService:
         ip = AmbienteService.endereco_ip()
         dispositivo = AmbienteService.obter_dispositivo()
 
-        HistoricoLogon.registrar_historico_login(usuario.id, ip, dispositivo)
+        HistoricoLogonRep.registrar_historico_login(usuario.id, ip, dispositivo)
         Usuario.marcar_logado(usuario.id)
 
         return usuario
     
     @staticmethod
     def logout(usuario_id):
-        HistoricoLogon.registrar_historico_logout(usuario_id)
+        HistoricoLogonRep.registrar_historico_logout(usuario_id)
         Usuario.marcar_deslogado(usuario_id)

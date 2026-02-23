@@ -4,7 +4,7 @@ from rich.console import Console
 
 console = Console()
 
-class HistoricoLogon:
+class HistoricoLogonRep:
     @staticmethod
     def registrar_historico_login(usuario_id,ip, dispositivo):
         try:

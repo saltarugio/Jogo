@@ -6,8 +6,10 @@ import getpass
 from rich.console import Console
 from models.usuario import Usuario
 from models.avatar import Avatar
-from models.npc import NPC
-from models.mapa import Mapa
+# from models.npc import NPC
+# from models.mapa import Mapa
+from repositorios.mapa_rep import MapasRep
+from repositorios.npc_rep import NpcRep
 from services.interacao import InteracaoService
 from services.autenticacao import AuthService
 
@@ -142,30 +144,28 @@ def menu_avatar(usuario):
             msg_erro("Escolha inválida. Tente novamente.")
 
 # ----------------- CONVERSA COM NPC -----------------
-def conversar_com_npc(avatar, mapa_atual):
+def conversar_com_npc(avatar, mapa_atual, npcs_resumo):
     """Gerencia a seleção de NPC e a conversa."""
-    npcs = NPC.listar_por_mapa(mapa_atual.id)
-
-    if not npcs:
+    if not npcs_resumo:
         msg_alerta("⚠️ Não há NPCs neste mapa.")
         return
     
     console.print("\nEscolha um NPC para conversar:")
-    for i, npc in enumerate(npcs, start=1):
+    for i, npc in enumerate(npcs_resumo, start=1):
         console.print(f"{i}. {npc.nome} ({npc.raca})")
     
     try:
-        escolha_npc = int(input("Digite o número do NPC: ")) - 1
-        npc_escolhido = npcs[escolha_npc] if 0 <= escolha_npc < len(npcs) else None
-    except ValueError:
-        npc_escolhido = None
-    
-    if not npc_escolhido:
+        escolha = int(input("Digite o número do NPC: ")) - 1
+        npc_resumo = npcs_resumo[escolha] if 0 <= escolha < len(npcs_resumo) else None
+    except (ValueError,IndexError):
         msg_erro("NPC inválido.")
+        escolha = None
         return
+    npc = NpcRep.busca_complemento_npc(npc_resumo.id)
+    
     msg_alerta(f" PARA SAIR DA CONVERSA USAR PALAVRA: sair")
-    msg_info(f"💬 Conversando com {npc_escolhido.nome}...\n")
-    interacao = InteracaoService(avatar, npc_escolhido, mapa_atual)
+    msg_info(f"💬 Conversando com {npc_resumo.nome}...\n")
+    interacao = InteracaoService(avatar, npc_resumo.id, mapa_atual)
     while True:
         resposta = interacao.executar()
         # resposta = NPC.executa_interacao(avatar, npc_escolhido, mapa_atual)
@@ -175,7 +175,8 @@ def conversar_com_npc(avatar, mapa_atual):
 # ----------------- MAPAS E LOOP PRINCIPAL -----------------
 def loop_principal(avatar):
     """Gerencia a navegação entre mapas e interações."""
-    mapas = Mapa.listar()  # precisa retornar todos os mapas em ordem (id crescente)
+    mapas = MapasRep.listar_mapas()
+    # mapas = Mapa.listar()  # precisa retornar todos os mapas em ordem (id crescente)
     if not mapas:
         msg_erro("⚠️ Nenhum mapa cadastrado!")
         AuthService.logout(avatar.usuario_id)
@@ -184,10 +185,10 @@ def loop_principal(avatar):
 
     while True:
         mapa_atual = mapas[indice_mapa]
-        console.print(f"\n🗺️ Você está no mapa: [bold green]{mapa_atual.nome}[/] \n")
-        npcs = NPC.listar_por_mapa(mapa_atual.id)
+        console.print(f"\n🗺️  Você está no mapa: [bold green]{mapa_atual.nome}[/] \n")
+        npcs = NpcRep.listar_npc_por_mapa(mapa_atual.id)
 
-        msg_info("Ações disponíveis:")
+        msg_info(" Ações disponíveis:")
         if npcs:
             console.print("c. Conversar com NPC")
         console.print("m. Mudar de mapa")
@@ -196,18 +197,18 @@ def loop_principal(avatar):
         escolha = input("Escolha uma opção: ").lower()
 
         if escolha == "c" and npcs:
-            conversar_com_npc(avatar, mapa_atual)
+            conversar_com_npc(avatar, mapa_atual, npcs)
         elif escolha == "m":
             if indice_mapa == 0:  # primeiro mapa
-                msg_info("Você só pode ir para o [p]róximo mapa.")
+                msg_info(" Você só pode ir para o [p]róximo mapa.")
                 if input("Ir para o próximo? (s/n) ").lower() == "s":
                     indice_mapa += 1
             elif indice_mapa == len(mapas) - 1:  # último mapa
-                msg_info("Você só pode voltar para o [a]nterior.")
+                msg_info(" Você só pode voltar para o anterior.")
                 if input("Voltar para o anterior? (s/n) ").lower() == "s":
                     indice_mapa -= 1
             else:
-                msg_info("Você pode ir para o [a]nterior ou [p]róximo.")
+                msg_info(" Você pode ir para o anterior ou próximo.")
                 if input("Escolha [a] ou [p]: ").lower() == "a":
                     indice_mapa -= 1
                 else:
