@@ -26,8 +26,8 @@ class NpcRep:
             with db.Banco() as banco:
                 query = """
                         SELECT personalidade, profissao, historia_pessoal
-                        FROM npc
-                        WHERE Id = %s
+                            FROM npc
+                            WHERE Id = %s
                     """
                 banco.cursor.execute(query, (npc_id,))
                 resultado = banco.cursor.fetchone()

@@ -5,13 +5,14 @@ import logging
 import getpass
 from rich.console import Console
 from models.usuario import Usuario
-from models.avatar import Avatar
+# from models.avatar import Avatar
 # from models.npc import NPC
 # from models.mapa import Mapa
 from repositorios.mapa_rep import MapasRep
 from repositorios.npc_rep import NpcRep
 from services.interacao import InteracaoService
 from services.autenticacao import AuthService
+from services.avatar_service import AvatarService
 
 #------------------- CONFIGURAÇÃO --------------------
 OLLAMA_URL = "http://localhost:11434"
@@ -102,14 +103,15 @@ def menu_login():
 # ----------------- AVATAR -----------------
 def menu_avatar(usuario):
     """Gerencia a seleção ou criação de avatar."""
-    avatares = usuario.listar_avatar()
+    avatares = AvatarService.lista(usuario.id)
 
     if not avatares:
         msg_alerta("⚠️ Você ainda não tem avatares, crie um novo para jogar.")
-        nome_avatar = input("Digite o nome do seu avatar: ")
-        avatar = Avatar.criar(nome_avatar, usuario.id)
+        # nome_avatar = input("Digite o nome do seu avatar: ")
+        avatar = AvatarService.criar(usuario.id)
+        # avatar = Avatar.criar(nome_avatar, usuario.id)
         if not avatar:
-            msg_erro("Avatar com esse nome já existe.")
+            # msg_erro("Avatar com esse nome já existe.")
             return menu_avatar(usuario)
         else:
             msg_sucesso(f"🎉 Avatar {avatar.nome} criado com sucesso!")
@@ -128,8 +130,9 @@ def menu_avatar(usuario):
             continue
 
         if escolha == 0:
-            nome_avatar = input("Digite o nome do seu avatar: ")
-            avatar = Avatar.criar(nome_avatar, usuario.id)
+            # nome_avatar = input("Digite o nome do seu avatar: ")
+            # avatar = Avatar.criar(nome_avatar, usuario.id)
+            avatar = AvatarService.criar(usuario.id)
             if not avatar:
                 msg_erro("Avatar com esse nome já existe.")
                 continue
@@ -213,7 +216,8 @@ def loop_principal(avatar):
                     indice_mapa -= 1
                 else:
                     indice_mapa += 1
-            Avatar.atualiza_posicao_avatar(avatar.id, mapas[indice_mapa].id)
+            # Avatar.atualiza_posicao_avatar(avatar.id, mapas[indice_mapa].id)
+            AvatarService.posicao_avatar(mapas[indice_mapa].id, avatar.id)
         elif escolha == "q":
             msg_info("🚪 Saindo do jogo. Até a próxima!")
             AuthService.logout(avatar.usuario_id)
