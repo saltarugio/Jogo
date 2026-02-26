@@ -8,16 +8,29 @@ from rich.console import Console
 
 console = Console()
 
+class UsarioRed:
+    def __init__(self, id, login):
+        self.id = id
+        self.login = login
+
 class Usuario:
-    def __init__(self, id, nome_usuario, senha, logado=False):
+    def __init__(self, id, nome_usuario, senha, logado):
         self.id = id
         self.nome_usuario = nome_usuario
         self.senha = senha
         self.logado = logado
+    
+    def __repr__(self):
+        return f"<Usuário id={self.id} nome={self.nome}>"
+    
+
+    #Passar para usuario_service
     @staticmethod
     def hashing_senha(senha):
         return hashlib.sha256(senha.encode('utf-8')).hexdigest()
+    #-------------------------------------------------------------
 
+    # Criadas no repositorio
     @staticmethod
     def buscar_por_login(login, senha):
 
@@ -93,3 +106,4 @@ class Usuario:
         except Exception as e:
             console.print(f"[bold red]Erro ao criar usuário: {e}")
             return None
+#-------------------------------------------------------------------------------

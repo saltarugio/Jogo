@@ -4,7 +4,7 @@ import requests
 import logging
 import getpass
 from rich.console import Console
-from models.usuario import Usuario
+# from models.usuario import Usuario
 # from models.avatar import Avatar
 # from models.npc import NPC
 # from models.mapa import Mapa
@@ -13,6 +13,7 @@ from repositorios.npc_rep import NpcRep
 from services.interacao import InteracaoService
 from services.autenticacao import AuthService
 from services.avatar_service import AvatarService
+from services.usuario_service import UsuarioService
 
 #------------------- CONFIGURAÇÃO --------------------
 OLLAMA_URL = "http://localhost:11434"
@@ -73,9 +74,11 @@ def menu_login():
             if senha != conf_senha:
                 msg_erro("As senhas não coincidem.")
                 continue
-            usuario = Usuario.criar(login, senha)
+            # usuario = Usuario.criar(login, senha)
+            usuario = UsuarioService.criar_usuario(login, senha)
             if usuario:
-                msg_info(f"🎉 Usuário {usuario.nome_usuario} criado com sucesso!")
+                msg_info(f"🎉 Usuário {usuario.login} criado com sucesso!")
+                usuario = None
             continue
         elif opcao == "l":
             login = input("Digite seu login: ")
@@ -97,7 +100,7 @@ def menu_login():
         else:
             msg_erro("Opção inválida.")
     
-    msg_info(f"✅ Bem-vindo de volta, {usuario.nome_usuario}!")
+    msg_info(f"✅ Bem-vindo de volta, {usuario.login}!")
     return usuario
 
 # ----------------- AVATAR -----------------
@@ -107,15 +110,19 @@ def menu_avatar(usuario):
 
     if not avatares:
         msg_alerta("⚠️ Você ainda não tem avatares, crie um novo para jogar.")
-        # nome_avatar = input("Digite o nome do seu avatar: ")
-        avatar = AvatarService.criar(usuario.id)
-        # avatar = Avatar.criar(nome_avatar, usuario.id)
-        if not avatar:
-            # msg_erro("Avatar com esse nome já existe.")
-            return menu_avatar(usuario)
-        else:
-            msg_sucesso(f"🎉 Avatar {avatar.nome} criado com sucesso!")
-        return avatar
+        while True:
+            nome_avatar = input("Digite o nome do seu avatar: ")
+            if not AvatarService.valida_Avatar(nome_avatar):
+                msg_erro("Nome inválido. Tente novamente.")
+                continue
+            avatar = AvatarService.criar(usuario.id, nome_avatar)
+            # avatar = Avatar.criar(nome_avatar, usuario.id)
+            if not avatar:
+                # msg_erro("Avatar com esse nome já existe.")
+                return menu_avatar(usuario)
+            else:
+                msg_sucesso(f"🎉 Avatar {avatar.nome} criado com sucesso!")
+            return avatar
     while True:
         console.print("\nEscolha um avatar para jogar:")
         for i, avatar_item in enumerate(avatares, start=1):
@@ -130,15 +137,21 @@ def menu_avatar(usuario):
             continue
 
         if escolha == 0:
-            # nome_avatar = input("Digite o nome do seu avatar: ")
-            # avatar = Avatar.criar(nome_avatar, usuario.id)
-            avatar = AvatarService.criar(usuario.id)
-            if not avatar:
-                msg_erro("Avatar com esse nome já existe.")
-                continue
-            else:
-                msg_sucesso(f"🎉 Avatar {avatar.nome} criado com sucesso!")
-                return avatar
+            while True:
+                nome_avatar = input("Digite o nome do seu avatar: ")
+                # nome_avatar = Avatar.criar(nome_avatar, usuario.id)
+                if not AvatarService.valida_Avatar(nome_avatar):
+                    msg_erro("Nome inválido. Tente novamente.")
+                    continue
+                
+                avatar = AvatarService.criar(usuario.id, nome_avatar)
+                if not avatar:
+                    msg_erro("Avatar com esse nome já existe.")
+                    continue
+                else:
+                    msg_sucesso(f"🎉 Avatar {avatar.nome} criado com sucesso!")
+                    return avatar
+
         elif 1 <= escolha <= len(avatares):
             avatar = avatares[escolha - 1]
             msg_sucesso(f"🎭 Avatar escolhido: {avatar.nome}")
@@ -167,8 +180,8 @@ def conversar_com_npc(avatar, mapa_atual, npcs_resumo):
     npc = NpcRep.busca_complemento_npc(npc_resumo.id)
     
     msg_alerta(f" PARA SAIR DA CONVERSA USAR PALAVRA: sair")
-    msg_info(f"💬 Conversando com {npc_resumo.nome}...\n")
-    interacao = InteracaoService(avatar, npc_resumo.id, mapa_atual)
+    msg_info(f"💬 Conversando com {npc.nome}...\n")
+    interacao = InteracaoService(avatar, npc, mapa_atual)
     while True:
         resposta = interacao.executar()
         # resposta = NPC.executa_interacao(avatar, npc_escolhido, mapa_atual)
@@ -182,7 +195,9 @@ def loop_principal(avatar):
     # mapas = Mapa.listar()  # precisa retornar todos os mapas em ordem (id crescente)
     if not mapas:
         msg_erro("⚠️ Nenhum mapa cadastrado!")
-        AuthService.logout(avatar.usuario_id)
+        # AuthService.logout(avatar.usuario_id)
+        UsuarioService.logout(avatar.usuario_id)
+        
         exit()
     indice_mapa = avatar.fk_mapa_id - 1  # começa no mapa do avatar
 
@@ -220,7 +235,8 @@ def loop_principal(avatar):
             AvatarService.posicao_avatar(mapas[indice_mapa].id, avatar.id)
         elif escolha == "q":
             msg_info("🚪 Saindo do jogo. Até a próxima!")
-            AuthService.logout(avatar.usuario_id)
+            # AuthService.logout(avatar.usuario_id)
+            UsuarioService.logout(avatar.usuario_id)
             break
         else:
             msg_erro("Opção inválida. Tente novamente.")

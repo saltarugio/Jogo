@@ -1,5 +1,3 @@
-import banco.conection as db
-
 class Avatar:
     def __init__(self, id=None, nome=None, usuario_id=None, fk_mapa_id=None):
         self.id = id

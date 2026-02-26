@@ -8,8 +8,8 @@ console = Console()
 class AvatarService:
 
     @staticmethod
-    def criar(usuario_id):
-        avatar = input("Nome do avatar: ")
+    def criar(usuario_id, avatar):
+        # avatar = input("Nome do avatar: ")
         try:
             with db.Banco() as banco:
                 if AvatarRep.buscar_avatar(banco, avatar):
@@ -45,3 +45,17 @@ class AvatarService:
         except Exception as e:
             console.print(f"Erro em listar avatares: {e}")
             return []
+        
+    @staticmethod
+    def valida_Avatar(avatar_nome: str) -> None:
+        if avatar_nome is None:
+            return False
+
+        nome = avatar_nome.strip()
+        if not nome:
+            return False
+        
+        if " " in avatar_nome:
+            return False
+        
+        return True

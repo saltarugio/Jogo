@@ -25,7 +25,7 @@ class NpcRep:
         try:
             with db.Banco() as banco:
                 query = """
-                        SELECT personalidade, profissao, historia_pessoal
+                        SELECT id, nome, raca, personalidade, profissao, historia_pessoal
                             FROM npc
                             WHERE Id = %s
                     """

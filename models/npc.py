@@ -1,5 +1,4 @@
 from rich.console import Console
-import banco.conection as db
 
 console = Console()
 
