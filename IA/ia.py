@@ -1,6 +1,9 @@
 import requests
+import json
 from IA.config import OLLAMA_API_DEEPSEEK_V3, OLLAMA_API_QWEN3_CODER, OLLAMA_API_DEEPSEEK_R1
 from rich.console import Console
+from services.postprocesso_resposta import processar_avaliacao
+
 console = Console()
 
 
@@ -20,19 +23,20 @@ elif MODELO_ESCOLHIDO == "deepseekr1":
 
 class DeepSeekIA:
     @staticmethod
-    def gerar_resposta(npc, usuario, historico, prompt, mapa, contexto_parametros):
+    def gerar_resposta(npc, avatar, historico, prompt, mapa, contexto_parametros):
         # Limitar histórico
         if len(historico) > OLLAMA_CONFIG["MAX_HISTORICO"]:
             historico = historico[-OLLAMA_CONFIG["MAX_HISTORICO"]:]
 
         # Montar contexto
-        # ... (código mantido, pois não é o foco do problema)
-        if isinstance(historico, list) and len(historico) > 0 and isinstance(historico[0], dict):
-            historico = [f"{k}: {v}" for msg in historico for k, v in msg.items()]
-        contexto = "\n".join(historico)
-
+        linha = []
+        for item in historico:
+            linha.append(f"{avatar}: {item.jogador}")
+            linha.append(f"{npc.nome}: {item.npc}")
+        contexto = "\n".join(linha)
+        
         # Prompt otimizado: Remova o excesso de formatação do terminal
-        entrada = f"""
+        entrada_sistema = f"""
             ### SYSTEM INSTRUCTIONS ###
             REGRA ABSOLUTA:
             - Responda EXCLUSIVAMENTE em português brasileiro
@@ -52,6 +56,10 @@ class DeepSeekIA:
             - Não descreva ações, emoções internas ou pensamentos
             - Não use aspas, colchetes ou parênteses
             - Não seja narrador
+            - Evite repetir saudações, respostas de cortesia ou estruturas usadas recentemente
+            - Se a pergunta do jogador for parecida, varie o foco da resposta
+            - Não responda "estou bem" mais de uma vez em interações próximas
+            - Quando o jogador repetir perguntas simples, avance o diálogo com novas informações, dicas ou contexto do local
 
             Uso do estado emocional:
             {contexto_parametros}
@@ -59,20 +67,24 @@ class DeepSeekIA:
             Formato da resposta:
             - Entre 1 e 3 frases curtas
             - Tom coerente com a personalidade e o estado emocional
-
+            """
+        entrada_conteudo = f"""
             ### HISTÓRICO DE DIÁLOGO ###
             {contexto}
             ### FIM DO HISTÓRICO ###
 
             Fala do jogador:
-            {usuario}: {prompt}
+            {avatar}: {prompt}
 
             Resposta do NPC:
             """
         # Crie o payload com base na documentação
         payload = {
             "model": OLLAMA_CONFIG["MODEL_NAME"],
-            "messages": [{"role": "user", "content": entrada}],
+            "messages": [
+                {"role": "system", "content": entrada_sistema},
+                {"role": "user", "content": entrada_conteudo}
+            ],
             "stream": False,
             "options": {
                 "temperature": OLLAMA_CONFIG["TEMPERATURE"],
@@ -100,7 +112,7 @@ class DeepSeekIA:
     
     @staticmethod
     def avaliacao_emocional(npc, usuario, prompt, mapa):
-        entrada = f"""
+        entrada_sistema = f"""
             ### SYSTEM INSTRUCTIONS ###
             Você é um sistema de avaliação emocional para NPCs em um jogo.
             
@@ -130,16 +142,17 @@ class DeepSeekIA:
             - Não repetir o enunciado do jogador.
             - Os valores representam variação emocional, não valores absolutos.
             - Qualquer texto fora do JSON invalida a resposta.
-
+            - IMPORTANTE: Se não conseguir responder em JSON válido, responda com {{"erro":"formato inválido"}}.
+            
             Formato EXATO da resposta:
             {{
-            "proximidade": int,
-            "reputacao": int,
-            "lealdade": int,
-            "hostilidade": int,
-            "justificativa": "string curta e objetiva"
-            }}
-
+                "proximidade": int,
+                "reputacao": int,
+                "lealdade": int,
+                "hostilidade": int,
+                "justificativa": "string curta e objetiva"
+            }}"""
+        entrada_conteudo = f"""    
             ### CONTEXTO DA INTERAÇÃO ###
             Jogador: {usuario}
             NPC: {npc.nome}
@@ -161,7 +174,10 @@ class DeepSeekIA:
             """
         payload = {
             "model": OLLAMA_CONFIG["MODEL_NAME"],
-            "messages": [{"role": "user", "content": entrada}],
+            "messages": [
+                {"role": "system", "content": entrada_sistema},
+                {"role": "user", "content": entrada_conteudo}
+            ],
             "stream": False,
             "options": {
                 "temperature": 0.2,
@@ -174,7 +190,16 @@ class DeepSeekIA:
             response = requests.post(OLLAMA_URL, headers=OLLAMA_HEADERS, json=payload)
             response.raise_for_status()
             resposta = response.json()
-            return resposta["message"]["content"]
+            conteudo = resposta.get("message", {}).get("content")
+            if not conteudo:
+                return None
+            dados = processar_avaliacao(conteudo)
+            # try:
+            #     resultados = json.loads(dados)
+            # except json.JSONDecodeError:
+            #     return None
+
+            return dados
         except requests.exceptions.HTTPError as e:
             return None
         except Exception as e:

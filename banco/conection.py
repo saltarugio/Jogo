@@ -17,8 +17,14 @@ class Banco:
 
         return self
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.db and self.db.is_connected():
-            self.cursor.close()
-            self.db.close()
-        if self.cursor:
-            self.cursor.close()
+        try:
+            if self.db and self.db.is_connected():
+                if exc_type is None:
+                    self.db.commit()
+                else:
+                    self.db.rollback()
+        finally:
+            if self.cursor:
+                self.cursor.close()
+            if self.db:
+                self.db.close()

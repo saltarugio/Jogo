@@ -1,26 +1,28 @@
+import time
 from rich.console import Console
-from services.postprocesso_resposta import processar_resposta
-from services.preprocesso_prompt import substituir_abreviacoes
+from prompt_toolkit.validation import Validator, ValidationError
 from  IA.ia import DeepSeekIA
+from services.hitorico_service import HistoricoService
 from models.historico import Historico
 from IA.parametros_ia import ParametrosIA
 from IA.contexto_parametro import montar_contexto_parametros
-import time
 from prompt_toolkit import prompt
-from prompt_toolkit.validation import Validator, ValidationError
+from services.postprocesso_resposta import processar_resposta
+from services.preprocesso_prompt import substituir_abreviacoes
 from services.linguistica import correcao
 
 console = Console()
 COMANDOS_SAIDA = {"sair", "exit", "quit"}
 
 def validador(texto):
-    if(len(texto) > 20):
+    if(len(texto) > 200):
         raise ValidationError(message="Frase muito grande")
     return True
 
+# class EncerrarInteracao(Exception):
+#     def __init__(self, mensagem="Interação encerrada pelo usuário"):
+#         super().__init__(mensagem)
 
-class EncerrarInteracao(Exception):
-    pass
 
 class InteracaoService:
 
@@ -32,9 +34,9 @@ class InteracaoService:
     def _capturar_texto(self):
         texto = prompt("Você: ", validator=Validator.from_callable(validador)).strip()
 
-        if texto.lower() in COMANDOS_SAIDA:
-            console.print("🚪[bold yellow]Encerrando conversa.")
-            raise EncerrarInteracao()
+        # if texto.lower() in COMANDOS_SAIDA:
+            # console.print("🚪[bold yellow]Encerrando conversa.")
+            # raise EncerrarInteracao()
         return texto
     
     def _responder_ia(self, texto, historico, contexto_parametros):
@@ -63,7 +65,8 @@ class InteracaoService:
         return correcao(verificado)
     
     def _obter_resposta_npc(self, texto):
-        historico = Historico.buscar_por_avatar_e_npc(self.avatar.id, self.npc.id, limite=10)
+        # historico = Historico.buscar_por_avatar_e_npc(self.avatar.id, self.npc.id, limite=10)
+        historico = HistoricoService.buscar_por_avatar_e_npc(self.avatar.id, self.npc.id)
         parametros_ia = Historico.buscar_parametros_ia(self.avatar.id, self.npc.id)
 
         contexto = montar_contexto_parametros(parametros_ia, self.avatar, self.npc)
@@ -82,23 +85,25 @@ class InteracaoService:
             self.mapa
         )
 
-        if avaliacao:
-            ParametrosIA.atualizar(self.avatar.id, self.npc.id, avaliacao)
+        ParametrosIA.atualizar(self.avatar.id, self.npc.id, avaliacao)
 
-        Historico.registrar_interacao(
-            fk_avatar_id=self.avatar.id,
+        HistoricoService.registrar_interacao(
+            fk_avatar_id= self.avatar.id,
             fk_npc_id=self.npc.id,
             prompt_usuario=texto,
-            resposta_ia=resposta
-        )
+            resposta_ia=resposta)
     
     def executar(self):
         try:
             texto = self._capturar_texto()
+            if texto.lower() in COMANDOS_SAIDA:
+                console.print("🚪[bold yellow]Encerrando conversa.")
+                return False
             texto_corrigido, resposta = self._obter_resposta_npc(texto)
             self._exibir_resposta(resposta)
-            self._avaliar_e_persistir(texto_corrigido, resposta)
+            self._avaliar_e_persistir(texto_corrigido, resposta.strip())
 
             return True
-        except EncerrarInteracao:
+        except Exception as e:
+            console.print(f"Erro ao executar a interação: {e}")
             return False
