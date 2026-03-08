@@ -1,10 +1,11 @@
 import time
 from rich.console import Console
 from prompt_toolkit.validation import Validator, ValidationError
-from  IA.ia import DeepSeekIA
+from IA.ia import DeepSeekIA
+from IA.parametros_ia import ParametrosIA
+from IA.services_ia.chat_service import ChatService
 from services.hitorico_service import HistoricoService
 from models.historico import Historico
-from IA.parametros_ia import ParametrosIA
 from IA.contexto_parametro import montar_contexto_parametros
 from prompt_toolkit import prompt
 from services.postprocesso_resposta import processar_resposta
@@ -33,15 +34,12 @@ class InteracaoService:
     
     def _capturar_texto(self):
         texto = prompt("Você: ", validator=Validator.from_callable(validador)).strip()
-
-        # if texto.lower() in COMANDOS_SAIDA:
-            # console.print("🚪[bold yellow]Encerrando conversa.")
-            # raise EncerrarInteracao()
         return texto
     
     def _responder_ia(self, texto, historico, contexto_parametros):
         try:
-            return DeepSeekIA.gerar_resposta(
+            chat = ChatService()
+            return chat.enviar_resposta(
                 self.npc,
                 self.avatar.nome,
                 historico,
@@ -78,10 +76,12 @@ class InteracaoService:
         return texto, resposta
     
     def _avaliar_e_persistir(self, texto, resposta):
-        avaliacao = DeepSeekIA.avaliacao_emocional(
+        chat = ChatService()
+        avaliacao = chat.enviar_avaliacao(
             self.npc,
             self.avatar.nome,
-            f"O jogador disse: {texto}. O NPC respondeu: {resposta}.",
+            texto,
+            resposta,
             self.mapa
         )
 
