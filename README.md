@@ -85,64 +85,120 @@ Modelo DeepSeek (Cloud)
 
 ## 📦 Estrutura do Projeto
 
-/ChatNPCs
+/Jogo
 
 ├── /IA
+
 │   ├── Ollama                 
+
 │   │     └── ollama_client.py                     # Gerencia envio do chat pronto para IA
+
 │   ├── prompt
+
 │   │     ├── montar_historico.py                  # Monta o histórico que esta no Banco de dados
+
 │   │     └── montar_prompt.py                     # Monta o prompt que será enviado para IA
+
 │   ├── service_ia                 
+
 │   │     └── chat_service.py                      # Coordena toda parte de montagem/envia do prompt
+
 │   ├── config.py                                  # Configração da IA que será usada
+
 │   ├── contexto_parametro.py                      # Converte os INT para textos expecificos para IA
+
 │   ├── modelo.py                                  # Especifica o modelo que será usado
+
 │   └── parametro_ia.py                            # Registra os parametros da interação
+
 │
+
 ├── /models
+
 │   ├── usuario.py                                 # Representação dos jogadores/usuários
+
 │   ├── avatar.py                                  # Representação do Avatar(Boneco do jogo do Jogador)
+
 │   ├── npc.py                                     # Representação dos NPCs (Bonecos não jogaveis)
+
 │   ├── interage_avatar_npc_historico_chat.py      # Representação da interação entre Avatar/NPC
+
 │   ├── mapa.py                                    # Estrutura do mundo e localização dos NPCs
+
 │   └── historico.py                               # Histórico da interação do Jogador/NPC
+
 │
+
 ├── /repositorios
+
 │   ├── avatar_rep.py                              # Registra e atualiza Avatar
+
 │   ├── historico_chat_rep.py                      # Registra e atualiza histórico entre jogador e NPC
+
 │   ├── historico_logon_rep.py                     # Registra e atualiza histírico de acesso do jogador
+
 │   ├── interacao_avatar_npc_historico_chat_rep.py # Registra e atualiza interações do jogador/NPC/historico
+
 │   ├── mapa_rep.py                                # Registra a localidades do JOGO
+
 │   ├── npc_rep.py                                 # Registra os NPCs do JOGO
+
 │   └── usuario_rep.py                             # Registra os Jogadores
+
 │
+
 ├── /services
+
 │   ├── abreciacoes.json                           # Dataset de abreciações e significado
+
 │   ├── ambiente.py                                # Captura o dispositivo e IP do jogador
+
 │   ├── autenticacao.py                            # Autentica o login do jogador
+
 │   ├── avatar_service.py                          # Coordena Criações/Atualização do Avatar
+
 │   ├── caminho_json.py                            # Centraliza a utilização do Dataset
+
 │   ├── historico_service.py                       # Coordena o Registro do historico do chats
+
 │   ├── historico_logon_service.py                 # Coordena o Registro de login/logout
+
 │   ├── limpeza.py                                 # Limpa de qualquer possível sujeira da resposta da IA
+
 │   ├── linguistica.py                             # Corrige escrita errada e gramátical
+
 │   ├── interacao.py                               # Coordena todo sistema de interação e exibição Jogador/NPC
+
 │   ├── normalizacao.py                            # Limpeza da acentuação do prompt do Jogador
+
 │   ├── postprocesso_resposta.py                   # Coordena a limpeza respota da IA
+
 │   ├── preprocesso_prompt.py                      # Coordena a limpeza do prompt do Jogador
+
 │   └── usuario_service.py                         # Coordena os Registros/Atualização/Buscas dos Jogadores
+
 │
+
 ├── /banco
+
 │   └── conection.py                               # Conexão com o banco MySQL/phpMyAdmin
+
 │
+
 ├── /arquivos_adionais
+
 │   ├── Diagrama_de_entidades.brM3                 # Diagrama de Entidades feito no brModelo
+
 │   ├── Diagrama_Logico.brM3                       # Diagrama Lógico feito no brModelo
+
 │   ├── Model_Fisico.sql                           # Modelo Fisico para ciaração do Banco
+
 │   └── mundo_interativo.sql                       # Banco Exportado do phpMyAdmin
+
 │
+
 ├── main.py                                        # Script principal que inicializa o jogo e a IA
+
 └── README.md                                      # Documentação do projeto
 
 ---
