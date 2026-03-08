@@ -50,7 +50,7 @@ Ollama API
      ▼
 Modelo DeepSeek (Cloud)
 
-| Componente         | Função                                  |
+| Componente         | Funcionalidade                          |
 | ------------------ | --------------------------------------- |
 | Python Game Engine | lógica do jogo e interações             |
 | Servidor IA        | montagem de prompt e processamento      |
