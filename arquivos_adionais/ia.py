@@ -118,95 +118,96 @@ class DeepSeekIA:
     #     except Exception as e:
     #         return None
     
-    @staticmethod
-    def avaliacao_emocional(npc, usuario, prompt, mapa):
-        entrada_sistema = f"""
-            ### SYSTEM INSTRUCTIONS ###
-            Você é um sistema de avaliação emocional para NPCs em um jogo.
+    # @staticmethod
+    # def avaliacao_emocional(npc, usuario, prompt, mapa):
+    #     entrada_sistema = f"""
+    #         ### SYSTEM INSTRUCTIONS ###
+    #         Você é um sistema de avaliação emocional para NPCs em um jogo.
             
-            Tarefa:
-            - Avaliar a interação entre Jogador e NPC
-            - Retornar alterações emocionais quantitativas
+    #         Tarefa:
+    #         - Avaliar a interação entre Jogador e NPC
+    #         - Retornar alterações emocionais quantitativas
 
-            Parâmetros:
-            - proximidade
-            - reputacao
-            - lealdade
-            - hostilidade
+    #         Parâmetros:
+    #         - proximidade
+    #         - reputacao
+    #         - lealdade
+    #         - hostilidade
 
-            Escala (obrigatória):
-            - -2 = mudança muito negativa
-            - -1 = mudança negativa
-            -  0 = nenhuma mudança
-            - +1 = mudança positiva
-            - +2 = mudança muito positiva
+    #         Escala (obrigatória):
+    #         - -2 = mudança muito negativa
+    #         - -1 = mudança negativa
+    #         -  0 = nenhuma mudança
+    #         - +1 = mudança positiva
+    #         - +2 = mudança muito positiva
 
-            Regras:
-            - Responder SOMENTE em JSON válido
-            - Usar APENAS português brasileiro
-            - Não usar símbolos estranhos ou outros idiomas
-            - Nunca mencionar IA, modelo ou sistema
-            - A justificativa deve ter no máximo 2 frases curtas.
-            - Não repetir o enunciado do jogador.
-            - Os valores representam variação emocional, não valores absolutos.
-            - Qualquer texto fora do JSON invalida a resposta.
-            - IMPORTANTE: Se não conseguir responder em JSON válido, responda com {{"erro":"formato inválido"}}.
+    #         Regras:
+    #         - Responder SOMENTE em JSON válido
+    #         - Usar APENAS português brasileiro
+    #         - Não usar símbolos estranhos ou outros idiomas
+    #         - Nunca mencionar IA, modelo ou sistema
+    #         - A justificativa deve ter no máximo 2 frases curtas.
+    #         - Não repetir o enunciado do jogador.
+    #         - Os valores representam variação emocional, não valores absolutos.
+    #         - Qualquer texto fora do JSON invalida a resposta.
+    #         - IMPORTANTE: Se não conseguir responder em JSON válido, responda com {{"erro":"formato inválido"}}.
             
-            Formato EXATO da resposta:
-            {{
-                "proximidade": int,
-                "reputacao": int,
-                "lealdade": int,
-                "hostilidade": int,
-                "justificativa": "string curta e objetiva"
-            }}
+    #         Formato EXATO da resposta:
+    #         {{
+    #             "proximidade": int,
+    #             "reputacao": int,
+    #             "lealdade": int,
+    #             "hostilidade": int,
+    #             "justificativa": "string curta e objetiva"
+    #         }}
 
-            NÃO inclua nenhuma outra chave além dessas. Se não conseguir, responda com {{"erro":"formato inválido"}}."""
-        entrada_conteudo = f"""    
-            ### CONTEXTO DA INTERAÇÃO ###
-            Jogador: {usuario}
-            NPC: {npc.nome}
+    #         NÃO inclua nenhuma outra chave além dessas. Se não conseguir, responda com {{"erro":"formato inválido"}}."""
+    #     entrada_conteudo = f"""    
+    #         ### CONTEXTO DA INTERAÇÃO ###
+    #         Jogador: {usuario}
+    #         NPC: {npc.nome}
 
-            Fala do Jogador:
-            "{prompt}"
+    #         Fala do Jogador:
+    #         "{prompt}"
 
-            Personalidade do NPC:
-            "{npc.personalidade}"
+    #         Personalidade do NPC:
+    #         "{npc.personalidade}"
 
-            História do NPC:
-            "{npc.historia_pessoal}"
+    #         História do NPC:
+    #         "{npc.historia_pessoal}"
 
-            Local:
-            "{mapa.nome} — {mapa.descricao}"
+    #         Local:
+    #         "{mapa.nome} — {mapa.descricao}"
 
-            ### FIM DO CONTEXTO ###
-            Avalie a interação agora.
-            """
-        payload = {
-            "model": OLLAMA_CONFIG["MODEL_NAME"],
-            "messages": [
-                {"role": "system", "content": entrada_sistema},
-                {"role": "user", "content": entrada_conteudo}
-            ],
-            "stream": False,
-            "options": {
-                "temperature": 0.2,
-                "num_predict": 256,
-                "repeat_penalty": 1.15
-            }
-        }
+    #         ### FIM DO CONTEXTO ###
+    #         Avalie a interação agora.
+    #         """
+    #     payload = {
+    #         "model": OLLAMA_CONFIG["MODEL_NAME"],
+    #         "messages": [
+    #             {"role": "system", "content": entrada_sistema},
+    #             {"role": "user", "content": entrada_conteudo}
+    #         ],
+    #         "stream": False,
+    #         "options": {
+    #             "temperature": 0.2,
+    #             "num_predict": 256,
+    #             "repeat_penalty": 1.15
+    #         }
+    #     }
         
-        try:
-            response = requests.post(OLLAMA_URL, headers=OLLAMA_HEADERS, json=payload)
-            response.raise_for_status()
-            resposta = response.json()
-            conteudo = resposta.get("message", {}).get("content")
-            if not conteudo:
-                return None
-            dados = processar_avaliacao(conteudo)
+    #     try:
+    #         response = requests.post(OLLAMA_URL, headers=OLLAMA_HEADERS, json=payload)
+    #         response.raise_for_status()
+    #         resposta = response.json()
+    #         conteudo = resposta.get("message", {}).get("content")
+    #         if not conteudo:
+    #             return None
+    #         dados = processar_avaliacao(conteudo)
 
-            return dados
-        except requests.exceptions.HTTPError:
-            return None
-        except Exception:
-            return None
+    #         return dados
+    #     except requests.exceptions.HTTPError:
+    #         return None
+    #     except Exception:
+    #         return None
+    pass

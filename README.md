@@ -1,7 +1,62 @@
-# 💬 Chat Dinâmico com NPCs
+# 💬 ChatNPCs - Diálogo Dinâmico com NPCs usando IA
 
-Um projeto experimental de **inteligência artificial com API híbrida** para gerar diálogos dinâmicos entre o jogador e NPCs em um ambiente de jogo via linha de comando (CLI).  
-O objetivo é permitir interações únicas, com respostas adaptáveis baseadas no histórico e nos parâmetros emocionais entre o jogador e cada NPC.
+Projeto experimental de **interação dinênmica entre jogador e NPCs** utilizando modelos de linguagem.
+
+O sistema permite que NPCs respondam de forma contextualizada com base em:
+
+- histórico de interações
+
+- parâmetros emocionais
+
+- personalidade do NPC
+
+- contexto do ambiente
+
+As conversas são persistidas em banco de dados e utilizadas para influenciar interações futuras.
+
+---
+
+## 🧠 Conceito
+
+Diferente de sistemas tradicionais de diálogo em jogos (baseados em árvores de decisão), este projeto utiliza IA generativa para produzir respostas dinâmicas.
+
+Cada NPC possui:
+
+- personalidade
+
+- histórico de interações com o jogador
+
+- parâmetros emocionais que evoluem com o tempo
+
+Isso permite criar interações menos previsíveis e mais adaptativas.
+
+---
+
+## ⚙️ Arquitetura
+
+O sistema utiliza uma arquitetura híbrida:
+
+Jogador (CLI)
+     │
+     ▼
+Motor do jogo (Python)
+     │
+     ▼
+Servidor IA
+     │
+     ▼
+Ollama API
+     │
+     ▼
+Modelo DeepSeek (Cloud)
+
+| Componente         | Função                                  |
+| ------------------ | --------------------------------------- |
+| Python Game Engine | lógica do jogo e interações             |
+| Servidor IA        | montagem de prompt e processamento      |
+| Ollama             | gateway de acesso ao modelo             |
+| DeepSeek           | geração de linguagem natural            |
+| MySQL              | armazenamento de histórico e parâmetros |
 
 ---
 
@@ -16,26 +71,91 @@ O objetivo é permitir interações únicas, com respostas adaptáveis baseadas 
 
 ## 🧠 Funcionalidades Principais
 
-- Diálogo dinâmico entre jogador e NPCs  
-- IA híbrida: execução local com processamento em nuvem  
-- Parâmetros emocionais que evoluem conforme as interações  
-- Histórico de conversas armazenado no banco de dados  
+- Diálogo dinâmico entre jogador e NPCs
+
+- Armazenamento de histórico de conversas
+
+- Parâmetros emocionais entre jogador e NPC
+
+- Contexto persistente entre interações
+
+- Execução via CLI para testes rápidos
+
+---
+
+## 📦 Estrutura do Projeto
+
+/ChatNPCs
+
+├── /IA
+│   ├── Ollama                 
+│   │     └── ollama_client.py                     # Gerencia envio do chat pronto para IA
+│   ├── prompt
+│   │     ├── montar_historico.py                  # Monta o histórico que esta no Banco de dados
+│   │     └── montar_prompt.py                     # Monta o prompt que será enviado para IA
+│   ├── service_ia                 
+│   │     └── chat_service.py                      # Coordena toda parte de montagem/envia do prompt
+│   ├── config.py                                  # Configração da IA que será usada
+│   ├── contexto_parametro.py                      # Converte os INT para textos expecificos para IA
+│   ├── modelo.py                                  # Especifica o modelo que será usado
+│   └── parametro_ia.py                            # Registra os parametros da interação
+│
+├── /models
+│   ├── usuario.py                                 # Representação dos jogadores/usuários
+│   ├── avatar.py                                  # Representação do Avatar(Boneco do jogo do Jogador)
+│   ├── npc.py                                     # Representação dos NPCs (Bonecos não jogaveis)
+│   ├── interage_avatar_npc_historico_chat.py      # Representação da interação entre Avatar/NPC
+│   ├── mapa.py                                    # Estrutura do mundo e localização dos NPCs
+│   └── historico.py                               # Histórico da interação do Jogador/NPC
+│
+├── /repositorios
+│   ├── avatar_rep.py                              # Registra e atualiza Avatar
+│   ├── historico_chat_rep.py                      # Registra e atualiza histórico entre jogador e NPC
+│   ├── historico_logon_rep.py                     # Registra e atualiza histírico de acesso do jogador
+│   ├── interacao_avatar_npc_historico_chat_rep.py # Registra e atualiza interações do jogador/NPC/historico
+│   ├── mapa_rep.py                                # Registra a localidades do JOGO
+│   ├── npc_rep.py                                 # Registra os NPCs do JOGO
+│   └── usuario_rep.py                             # Registra os Jogadores
+│
+├── /services
+│   ├── abreciacoes.json                           # Dataset de abreciações e significado
+│   ├── ambiente.py                                # Captura o dispositivo e IP do jogador
+│   ├── autenticacao.py                            # Autentica o login do jogador
+│   ├── avatar_service.py                          # Coordena Criações/Atualização do Avatar
+│   ├── caminho_json.py                            # Centraliza a utilização do Dataset
+│   ├── historico_service.py                       # Coordena o Registro do historico do chats
+│   ├── historico_logon_service.py                 # Coordena o Registro de login/logout
+│   ├── limpeza.py                                 # Limpa de qualquer possível sujeira da resposta da IA
+│   ├── linguistica.py                             # Corrige escrita errada e gramátical
+│   ├── interacao.py                               # Coordena todo sistema de interação e exibição Jogador/NPC
+│   ├── normalizacao.py                            # Limpeza da acentuação do prompt do Jogador
+│   ├── postprocesso_resposta.py                   # Coordena a limpeza respota da IA
+│   ├── preprocesso_prompt.py                      # Coordena a limpeza do prompt do Jogador
+│   └── usuario_service.py                         # Coordena os Registros/Atualização/Buscas dos Jogadores
+│
+├── /banco
+│   └── conection.py                               # Conexão com o banco MySQL/phpMyAdmin
+│
+├── /arquivos_adionais
+│   ├── Diagrama_de_entidades.brM3                 # Diagrama de Entidades feito no brModelo
+│   ├── Diagrama_Logico.brM3                       # Diagrama Lógico feito no brModelo
+│   ├── Model_Fisico.sql                           # Modelo Fisico para ciaração do Banco
+│   └── mundo_interativo.sql                       # Banco Exportado do phpMyAdmin
+│
+├── main.py                                        # Script principal que inicializa o jogo e a IA
+└── README.md                                      # Documentação do projeto
 
 ---
 
 ## ⚙️ Como Executar
 
 1. **Instale o Ollama**  
-<<<<<<< HEAD
-  👉 [https://ollama.com/download](https://ollama.com/download)
+  👉 [https://ollama.com/download]
   
    Efetue o login no site do **OLLAMA** e crie uma Api para poder usar o modelo do tipo cloud
-=======
-   👉 [https://ollama.com/download](https://ollama.com/download)
->>>>>>> 5e27a737e49ee1b6b19f09bbc774554e4c6b97ac
 
 2. **Baixe e execute o modelo DeepSeek (versão cloud)**  
-   ```bash
+
    ollama run deepseek-v3.1:671b-cloud
 
 3. Instale as dependências **Python**:
@@ -44,7 +164,15 @@ O objetivo é permitir interações únicas, com respostas adaptáveis baseadas 
   
 4. Configure o banco de dados **MySQL/phpMyAdmin**
 
-   Crie o banco de dados com as tabelas necessárias (usuários, NPCs, parâmetros de IA e histórico).
+   4.1. Baixe XAMPP.
+      https://www.apachefriends.org/pt_br/download.html
+
+   4.2. Execute em **modo Adminstrador** e inicie o **Apache e Mysql**
+      Obs.: Para outras formas de banco tera que mexer no arquivo de 
+      conexão do banco para efetuar as credenciais de conexão
+      de sua preferencia.
+   
+   4.3. Importe o modelo SQL chamado mundo_interativo.sql dentro do phpmyadmin.
 
    Ajuste as credenciais no arquivo de conexão (banco/conection.py).
    
@@ -54,58 +182,36 @@ O objetivo é permitir interações únicas, com respostas adaptáveis baseadas 
 
 ---
 
-## 🧩 Estrutura do Projeto
-
-/ChatNPCs
-
-├── /IA
-
-│   ├── ia.py                 # Classe principal de comunicação com o modelo de IA
-
-│   ├── parametros_ia.py      # Sistema de parâmetros emocionais (proximidade, reputação, etc.)
-
-│
-
-├── /models
-
-│   ├── usuario.py            # Representação dos jogadores/usuários
-
-│   ├── avatar.py             # Dados do avatar do jogador
-
-│   ├── npc.py                # Dados e personalidade dos NPCs
-
-│   ├── mapa.py               # Estrutura do mundo e localização dos NPCs
-
-│   └── historico.py          # Registro das interações entre jogador e NPCs
-
-│
-
-├── /python
-
-│   └── servidor.py           # Servidor de comunicação entre jogo e IA
-
-│
-
-├── /banco
-
-│   └── conection.py          # Conexão com o banco MySQL/phpMyAdmin
-
-│
-
-├── main.py                   # Script principal que inicializa o jogo e a IA
-
-└── README.md                 # Documentação do projeto
-
----
-
 # 💡 Observações
 
 ## ⚙️ Sobre a IA:
-  O projeto utiliza o Ollama como servidor intermediário para comunicação com o modelo DeepSeek v3.1 (cloud).
-  Embora a execução principal do código e a gestão de contexto sejam realizadas localmente, o modelo em si é processado em nuvem.
-  Essa abordagem híbrida foi escolhida por limitações de hardware, mantendo o mesmo formato de integração utilizado para execução local completa.
-<<<<<<< HEAD
-  Dentro do Ollama Existem varios modelos além do usado no projeto sinta-se livre para escolher o que gostar mais.
-  As IAs são do tipo generativos para processamento de texto.
-=======
->>>>>>> 5e27a737e49ee1b6b19f09bbc774554e4c6b97ac
+  O projeto utiliza o **Ollama como servidor intermediário para comunicação com o modelo DeepSeek v3.1 (cloud).**
+  Embora o jogo e o gerenciamento de contexto ocorram localmente, o processamento do modelo pode ocorrer em nuvem dependendo da configuração.
+  Essa abordagem permite:
+- desenvolvimento em máquinas com hardware limitado
+
+- compatibilidade futura com execução totalmente local
+
+- troca simples de modelos
+
+---
+
+## 🔮 Possíveis Evoluções
+
+memória de longo prazo dos NPCs
+
+sistema de reputação global
+
+emoções persistentes
+
+NPCs presentes em múltiplos mapas
+
+treinamento de comportamento específico por NPC
+
+---
+
+## 📜 Licença
+
+Projeto experimental para fins educacionais e de pesquisa em IA aplicada a jogos.
+
+---

@@ -1,7 +1,7 @@
 import time
 from rich.console import Console
 from prompt_toolkit.validation import Validator, ValidationError
-from IA.ia import DeepSeekIA
+# from outros_arquivos.ia import DeepSeekIA
 from IA.parametros_ia import ParametrosIA
 from IA.services_ia.chat_service import ChatService
 from services.hitorico_service import HistoricoService
@@ -19,11 +19,6 @@ def validador(texto):
     if(len(texto) > 200):
         raise ValidationError(message="Frase muito grande")
     return True
-
-# class EncerrarInteracao(Exception):
-#     def __init__(self, mensagem="Interação encerrada pelo usuário"):
-#         super().__init__(mensagem)
-
 
 class InteracaoService:
 
