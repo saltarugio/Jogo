@@ -5,7 +5,7 @@ from services.postprocesso_resposta import processar_avaliacao, validar_json
 
 class ChatService:
 
-    def __init__(self, modelo="deepseek_v3"):
+    def __init__(self, modelo="qwen_coder"):
         self.config = obter_modelo(modelo)
         self.client = OllamaClient(self.config)
 
@@ -24,7 +24,8 @@ class ChatService:
         resposta = self.client.chat(
             mensagens,
             self.config["TEMPERATURE"],
-            self.config["MAX_TOKENS"]
+            self.config["MAX_TOKENS"],
+            self.config["REPEAT_PENALTY"]
         )
 
         return resposta
@@ -44,7 +45,8 @@ class ChatService:
             resposta = self.client.chat(
                 mensagens,
                 0.2,
-                self.config["MAX_TOKENS"]
+                self.config["MAX_TOKENS"],
+                self.config["REPEAT_PENALTY"]
             )
 
             avaliacao = processar_avaliacao(resposta)

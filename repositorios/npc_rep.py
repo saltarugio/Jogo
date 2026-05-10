@@ -37,3 +37,11 @@ class NpcRep:
         except Exception as e:
             console.print(f"Erro ao conseguir complemento: {e}")
             return None
+    
+    def buscar_nome_npc(banco):
+        query = """
+                SELECT nome AS nome_npc FROM npc
+            """
+        banco.cursor.execute(query,)
+        resultado = banco.cursor.fetchall()
+        return [row['nome_npc'].lower() for row in resultado] if resultado else None

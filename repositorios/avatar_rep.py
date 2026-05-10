@@ -39,3 +39,12 @@ class AvatarRep:
                 UPDATE avatar SET fk_mapa_id = %s WHERE id = %s
             """
         banco.cursor.execute(query,(mapa_id, avatar_id))
+    
+    @staticmethod
+    def busca_nome_avatar(banco):
+        query = """
+                SELECT nome AS nome_avatar FROM avatar
+            """
+        banco.cursor.execute(query,)
+        resultado = banco.cursor.fetchall()
+        return [row['nome_avatar'].lower() for row in resultado] if resultado else None

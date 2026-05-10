@@ -1,0 +1,52 @@
+3. Estrutura recomendada do seu capítulo de metodologia
+
+Baseado no seu projeto, uma estrutura forte seria:
+
+3. METODOLOGIA
+
+3.1 Visão geral do sistema
+O que o sistema faz
+NPC + IA + jogador
+
+3.2 Arquitetura da solução
+Backend (Python)
+API de IA
+Banco de dados
+
+3.3 Fluxo de interação
+Jogador envia mensagem
+Sistema monta prompt
+IA responde
+Resposta é armazenada
+
+3.4 Modelagem de Dados
+   3.4.1 Núcleo da interação
+   3.4.2 Parâmetros dinâmicos
+   3.4.3 Entidades de contexto
+   3.4.4 Entidades auxiliares
+
+👉 Aqui você conecta com:
+
+“representação de conhecimento”
+3.5 Construção do prompt
+como você monta entrada para IA
+contexto + histórico + personalidade
+
+👉 Isso é um dos pontos mais fortes do seu TCC
+
+3.6 Uso da IA generativa
+por que usar API
+como é chamada
+estrutura da requisição
+
+👉 Aqui entra referência de IA generativa
+
+3.7 Limitações e decisões
+por que não usar modelo local
+limitações de hardware
+custo
+4. Como usar referências na metodologia
+
+Aqui é onde muita gente erra.
+
+👉 Na metodologia você usa menos referência, mas usa de forma estratégica.

@@ -3,6 +3,9 @@ Este módulo contém a configuração que vai para IA.
 """
 # config.py
 
+import os
+
+
 OLLAMA_API_DEEPSEEK_R1 = {
     "OLLAMA_URL": "http://localhost:11434/api/chat",
     "OLLAMA_HEADERS": {"Content-Type": "application/json"},
@@ -18,7 +21,7 @@ OLLAMA_API_DEEPSEEK_R1 = {
 OLLAMA_API_DEEPSEEK_V3 = {
     "OLLAMA_URL": "http://localhost:11434/api/chat",
     "OLLAMA_HEADERS": {"Content-Type": "application/json"},
-    "MODEL_NAME": "deepseek-v3.1:671b-cloud",
+    "MODEL_NAME": "deepseek-v4-pro:cloud",
     # Parâmetros que serão enviados diretamente no payload
     "MAX_HISTORICO": 10,
     "TEMPERATURE": 0.6,

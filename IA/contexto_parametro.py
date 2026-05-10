@@ -31,7 +31,7 @@ def montar_contexto_parametros(parametros_ia, avatar, npc):
         else:
             return neutro
 
-    # 🧠 Traduções dos parâmetros em termos descritivos
+    # Traduções dos parâmetros em termos descritivos
     descricao_proximidade = interpretar(
         proximidade,
         positivo=f"{npc.nome} tem grande afeição e sente-se à vontade com {avatar.nome}.",
@@ -69,11 +69,11 @@ def montar_contexto_parametros(parametros_ia, avatar, npc):
 
     contexto = (
         f"Contexto emocional entre {avatar.nome} (jogador) e {npc.nome} (NPC):\n"
-        f"- {descricao_proximidade}\n"
-        f"- {descricao_reputacao}\n"
-        f"- {descricao_lealdade}\n"
-        f"- {descricao_hostilidade}\n"
-        f"- {descricao_observacao}\n\n"
+        f"- Proximidade: {descricao_proximidade}\n"
+        f"- Reputação: {descricao_reputacao}\n"
+        f"- Lealdade: {descricao_lealdade}\n"
+        f"- Hostilidade: {descricao_hostilidade}\n"
+        f"- Observação: {descricao_observacao}\n\n"
         f"Use esse contexto para guiar o tom e o conteúdo das respostas de {npc.nome}."
     )
 

@@ -18,3 +18,11 @@ class MapasRep:
         except Exception as e:
             console.print(f"Erro ao listar mapas: {e}")
             return []
+    
+    def buscar_nome_mapa(banco):
+        query = """
+                SELECT nome AS nome_mapas FROM mapas
+            """
+        banco.cursor.execute(query,)
+        resultado = banco.cursor.fetchall()
+        return [row['nome_mapas'].lower() for row in resultado] if resultado else None
