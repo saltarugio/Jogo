@@ -77,7 +77,7 @@ def menu_login():
             # usuario = Usuario.criar(login, senha)
             usuario = UsuarioService.criar_usuario(login, senha)
             if usuario:
-                msg_info(f"🎉 Usuário {usuario.login} criado com sucesso!")
+                msg_info(f"🎉 Usuário {usuario.nome_usuario} criado com sucesso!")
                 usuario = None
             continue
         elif opcao == "l":
