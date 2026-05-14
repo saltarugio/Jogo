@@ -34,7 +34,7 @@ class UsuarioRep:
     @staticmethod
     def buscar_por_login(banco, login):
         query = """
-                SELECT Id, nome_usuario, senha FROM usuario WHERE nome_usuario = %s
+                SELECT Id, nome_usuario, senha, logado FROM usuario WHERE nome_usuario = %s
             """
         banco.cursor.execute(query, (login,))
         return banco.cursor.fetchone()

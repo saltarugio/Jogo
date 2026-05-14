@@ -40,7 +40,7 @@ class NpcRep:
     
     def buscar_nome_npc(banco):
         query = """
-                SELECT nome AS nome_npc FROM npc
+                SELECT nome, raca AS nome_npc FROM npc
             """
         banco.cursor.execute(query,)
         resultado = banco.cursor.fetchall()

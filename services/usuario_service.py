@@ -41,6 +41,9 @@ class UsuarioService:
                     console.print("[bold red] Usuário já esta logado!")
                     return None
 
+                # if usuario["logado"] == 1:
+                #     raise ValueError("Usuário já está logado!")
+
                 if usuario["senha"] != senha_hash:
                     return None
             
