@@ -16,12 +16,13 @@ def montar_contexto_parametros(parametros_ia, avatar, npc):
     hostilidade = parametros_ia.get("hostilidade", 0)
     observacao = parametros_ia.get("observacao", "")
 
-    # ✅ Garante os valores dentro do esperado
+    #Garante os valores dentro do esperado
     proximidade = int(proximidade)
     reputacao = int(reputacao)
     lealdade = int(lealdade)
     hostilidade = int(hostilidade)
 
+    print(f">>[Sistema] Parâmetros IA: Proximidade: {proximidade}| Reputacao: {reputacao}| Lealdade: {lealdade}| Hostilidade: {hostilidade}| observacao='{observacao}'")
     def interpretar(valor, positivo, negativo, neutro="neutro"):
         """Retorna uma frase curta conforme o nível do valor."""
         if valor >= 10:
