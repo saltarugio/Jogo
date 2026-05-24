@@ -15,6 +15,7 @@ class MontarPrompt:
 
             Identidade do NPC:
             - Personalidade: {npc.personalidade}
+            - Profissão: {npc.profissao}
             - História: {npc.historia_pessoal}
             - Local atual: {mapa.nome} — {mapa.descricao}
 
