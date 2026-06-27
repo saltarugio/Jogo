@@ -42,7 +42,7 @@ class MontarPrompt:
             ### FIM DO HISTÓRICO ###
 
             Fala do jogador:
-            {avatar}: {prompt}
+            {prompt}
 
             Resposta do NPC:
             """
